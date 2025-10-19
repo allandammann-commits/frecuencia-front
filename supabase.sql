@@ -43,3 +43,40 @@ create policy select_own_progress
 -- (Optional) Grant privileges for PostgREST roles
 grant usage on schema public to authenticated;
 grant select, insert on public.progress_entries to authenticated;
+
+-- User daily progression (start at day 1 and unlock per entry)
+create table if not exists public.user_progress (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  started_at date not null default (now() at time zone 'utc')::date,
+  last_unlocked_day integer not null default 1,
+  last_seen_at timestamptz not null default now()
+);
+
+create index if not exists user_progress_last_seen_idx on public.user_progress (last_seen_at);
+
+alter table public.user_progress enable row level security;
+
+drop policy if exists select_own_user_progress on public.user_progress;
+drop policy if exists insert_own_user_progress on public.user_progress;
+drop policy if exists update_own_user_progress on public.user_progress;
+
+create policy select_own_user_progress
+  on public.user_progress
+  for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+create policy insert_own_user_progress
+  on public.user_progress
+  for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+create policy update_own_user_progress
+  on public.user_progress
+  for update
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+grant select, insert, update on public.user_progress to authenticated;

@@ -1,202 +1,110 @@
-import { TrendingUp, Calendar, Headphones, BookOpen, Flame } from "lucide-react";
-import { Progress as ProgressBar } from "@/components/ui/progress";
+import { Trophy, Flame, Clock, Headphones, Star, CalendarDays } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { useEffect, useMemo, useState } from "react";
+import { getUnlockedDays } from "@/lib/userProgress";
 
-const Progress = () => {
-  const stats = {
-    currentDay: 3,
-    totalDays: 30,
-    listenedAudios: 3,
-    readGuides: 2,
-    streak: 3,
-    completedTasks: 8,
-  };
+const PROGRAM_TOTAL_DAYS = 7;
 
-  const weeklyProgress = [
-    { day: "L", completed: true },
-    { day: "M", completed: true },
-    { day: "M", completed: true },
-    { day: "J", completed: false },
-    { day: "V", completed: false },
-    { day: "S", completed: false },
-    { day: "D", completed: false },
-  ];
+const ProgressPage = () => {
+  const [unlockedDays, setUnlockedDays] = useState<number[]>([]);
 
-  const achievements = [
-    {
-      id: 1,
-      title: "Primera Sesión",
-      description: "Completaste tu primera frecuencia",
-      icon: "🎯",
-      unlocked: true,
-    },
-    {
-      id: 2,
-      title: "Constancia",
-      description: "3 días seguidos de práctica",
-      icon: "🔥",
-      unlocked: true,
-    },
-    {
-      id: 3,
-      title: "Lectora Dedicada",
-      description: "Lee 5 guías completas",
-      icon: "📚",
-      unlocked: false,
-    },
-    {
-      id: 4,
-      title: "Semana Completa",
-      description: "Completa 7 días consecutivos",
-      icon: "⭐",
-      unlocked: false,
-    },
-  ];
+  useEffect(() => {
+    (async () => {
+      const days = await getUnlockedDays();
+      setUnlockedDays(days);
+    })();
+  }, []);
+
+  const currentDay = useMemo(() => (unlockedDays.length ? Math.max(...unlockedDays) : 1), [unlockedDays]);
+  const progressPercentage = useMemo(() => (currentDay / PROGRAM_TOTAL_DAYS) * 100, [currentDay]);
+
+  const totalMinutesListened = 65;
+  const totalSessions = unlockedDays.length * 2;
+  const streakDays = unlockedDays.length;
 
   return (
     <div className="min-h-screen pb-24 px-4 pt-6">
-      <header className="mb-8">
-        <h1 className="font-display text-3xl font-bold gradient-text mb-2">
-          Tu Progreso
-        </h1>
-        <p className="text-muted-foreground">
-          Sigue tu transformación día a día
-        </p>
+      <header className="mb-6">
+        <h1 className="font-display text-2xl font-bold">Mi Progreso</h1>
+        <p className="text-muted-foreground">Resumen y estadísticas del programa</p>
       </header>
 
-      {/* Main Progress Card */}
-      <div className="glass-card rounded-2xl p-6 mb-6 bg-gradient-to-br from-primary/20 to-accent/10 border-primary/40 animate-slide-up">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="font-display text-2xl font-bold mb-1">
-              Día {stats.currentDay} de {stats.totalDays}
-            </h2>
-            <p className="text-muted-foreground">Tu viaje de transformación</p>
-          </div>
-          <div className="text-right">
-            <div className="text-4xl font-bold gradient-text">
-              {Math.round((stats.currentDay / stats.totalDays) * 100)}%
+      <div className="grid gap-4 md:grid-cols-2 mb-6">
+        {/* Overall Progress */}
+        <div className="glass-card rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="text-primary" />
+              <h2 className="font-semibold">Progreso del Programa</h2>
             </div>
+            <span className="text-sm text-muted-foreground">Día {currentDay} de {PROGRAM_TOTAL_DAYS}</span>
           </div>
+          <Progress value={progressPercentage} className="h-3 mb-3" />
+          <p className="text-sm text-muted-foreground">Has desbloqueado {unlockedDays.length} días</p>
         </div>
-        
-        <ProgressBar 
-          value={(stats.currentDay / stats.totalDays) * 100} 
-          className="h-3"
-        />
-      </div>
 
-      {/* Weekly Progress */}
-      <div className="glass-card rounded-2xl p-6 mb-6">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Calendar size={20} className="text-primary" />
-          Esta Semana
-        </h3>
-        <div className="flex justify-between gap-2">
-          {weeklyProgress.map((day, index) => (
-            <div key={index} className="flex flex-col items-center gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
-                day.completed
-                  ? "bg-gradient-to-br from-primary to-accent text-white animate-scale-in"
-                  : "glass-card text-muted-foreground"
-              }`}>
-                {day.day}
-              </div>
-            </div>
-          ))}
+        {/* Streak */}
+        <div className="glass-card rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Flame className="text-accent" />
+            <h2 className="font-semibold">Racha de Días</h2>
+          </div>
+          <div className="text-3xl font-bold">{streakDays} días</div>
+          <p className="text-sm text-muted-foreground">Sigue escuchando para mantener tu racha</p>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <Headphones size={20} className="text-primary" />
-            </div>
-            <div className="text-3xl font-bold">{stats.listenedAudios}</div>
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="text-primary" />
+            <h3 className="font-semibold">Tiempo de Escucha</h3>
           </div>
-          <p className="text-sm text-muted-foreground">Frecuencias escuchadas</p>
+          <p className="text-2xl font-bold">{totalMinutesListened} min</p>
+          <p className="text-xs text-muted-foreground">Total acumulado</p>
         </div>
 
         <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-              <BookOpen size={20} className="text-accent" />
-            </div>
-            <div className="text-3xl font-bold">{stats.readGuides}</div>
+          <div className="flex items-center gap-2 mb-2">
+            <Headphones className="text-primary-light" />
+            <h3 className="font-semibold">Sesiones</h3>
           </div>
-          <p className="text-sm text-muted-foreground">Guías leídas</p>
+          <p className="text-2xl font-bold">{totalSessions}</p>
+          <p className="text-xs text-muted-foreground">Frecuencias completadas</p>
         </div>
 
         <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-              <Flame size={20} className="text-white" />
-            </div>
-            <div>
-              <div className="text-3xl font-bold">{stats.streak}</div>
-              <p className="text-sm text-muted-foreground">Días seguidos</p>
-            </div>
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="text-accent" />
+            <h3 className="font-semibold">Logros</h3>
           </div>
-        </div>
-
-        <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <TrendingUp size={20} className="text-primary" />
-            </div>
-            <div>
-              <div className="text-3xl font-bold">{stats.completedTasks}</div>
-              <p className="text-sm text-muted-foreground">Tareas completadas</p>
-            </div>
-          </div>
+          <p className="text-2xl font-bold">{Math.min(unlockedDays.length, 5)}</p>
+          <p className="text-xs text-muted-foreground">Desbloqueos conseguidos</p>
         </div>
       </div>
 
-      {/* Achievements */}
-      <div className="mb-6">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <TrendingUp size={20} className="text-primary" />
-          Logros Desbloqueados
-        </h3>
-        
-        <div className="grid grid-cols-2 gap-3">
-          {achievements.map((achievement) => (
-            <div
-              key={achievement.id}
-              className={`glass-card rounded-xl p-4 text-center transition-all ${
-                achievement.unlocked 
-                  ? "hover-scale cursor-pointer" 
-                  : "opacity-50"
-              }`}
-            >
-              <div className={`text-4xl mb-2 ${
-                achievement.unlocked ? "animate-scale-in" : "grayscale"
-              }`}>
-                {achievement.icon}
-              </div>
-              <h4 className="font-semibold text-sm mb-1">{achievement.title}</h4>
-              <p className="text-xs text-muted-foreground">
-                {achievement.description}
-              </p>
-            </div>
-          ))}
+      <div className="mt-6 glass-card rounded-2xl p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="text-primary" />
+          <h2 className="font-semibold">Días Desbloqueados</h2>
         </div>
-      </div>
-
-      {/* Motivation Card */}
-      <div className="glass-card rounded-2xl p-5 bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-        <h3 className="font-semibold mb-2 text-accent flex items-center gap-2">
-          <span>💪</span>
-          Motivación
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          ¡Vas por excelente camino! La constancia es la clave del éxito durante estos 30 días. 
-          Cada frecuencia que escuchas y cada tarea que completas te acerca más a tu reencuentro.
-        </p>
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: PROGRAM_TOTAL_DAYS }).map((_, idx) => {
+            const day = idx + 1;
+            const unlocked = unlockedDays.includes(day);
+            return (
+              <span
+                key={day}
+                className={`px-3 py-1 rounded-full text-sm ${unlocked ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+              >
+                Día {day}
+              </span>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Progress;
+export default ProgressPage;

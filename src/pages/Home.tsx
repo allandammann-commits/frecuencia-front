@@ -4,14 +4,45 @@ import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { getTodayFrequencies } from "@/data/frequencies";
+import { useEffect, useMemo, useState } from "react";
+import { updateProgressOnEntry } from "@/lib/userProgress";
+import { getUser } from "@/lib/auth";
+import { toast } from "sonner";
+
+const PROGRAM_TOTAL_DAYS = 7;
 
 const Home = () => {
   const navigate = useNavigate();
-  const currentDay = 3;
-  const totalDays = 30;
-  const progressPercentage = (currentDay / totalDays) * 100;
+  const [currentDay, setCurrentDay] = useState<number>(1);
+  const [userName, setUserName] = useState<string>("")
 
-  const todayFrequencies = getTodayFrequencies(currentDay);
+  useEffect(() => {
+    // Atualiza desbloqueios e dia atual ao entrar na Home
+    (async () => {
+      try {
+        const { currentDay, error } = await updateProgressOnEntry();
+        if (error) {
+          toast.error("Não foi possível atualizar seu progresso");
+        }
+        setCurrentDay(currentDay);
+      } catch (e: any) {
+        toast.error(e?.message || "Erro ao obter progresso");
+      }
+    })();
+
+    // Carrega nome do usuário (se disponível)
+    (async () => {
+      const { user } = await getUser();
+      if (user) {
+        const name = (user.user_metadata as any)?.name || user.email || "";
+        setUserName(name);
+      }
+    })();
+  }, []);
+
+  const totalDays = PROGRAM_TOTAL_DAYS;
+  const progressPercentage = useMemo(() => (currentDay / totalDays) * 100, [currentDay]);
+  const todayFrequencies = useMemo(() => getTodayFrequencies(currentDay), [currentDay]);
 
   return (
     <div className="min-h-screen pb-24 px-4 pt-6">
@@ -20,7 +51,7 @@ const Home = () => {
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-12 h-12" />
           <div>
-            <h3 className="font-display text-xl font-semibold">Hola, María</h3>
+            <h3 className="font-display text-xl font-semibold">{userName ? `Hola, ${userName}` : "Bienvenida"}</h3>
             <p className="text-sm text-muted-foreground">Día {currentDay} de tu transformación</p>
           </div>
         </div>
@@ -47,7 +78,7 @@ const Home = () => {
         
         <div className="flex items-center gap-2 text-sm text-primary-light">
           <Sparkles size={16} />
-          <span>¡Vas increíble! Sigue así para ver resultados en 7 días</span>
+          <span>¡Vas increíble! Sigue así para ver resultados en {totalDays} días</span>
         </div>
       </div>
 
