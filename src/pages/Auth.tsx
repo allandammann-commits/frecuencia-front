@@ -31,16 +31,26 @@ const Auth = () => {
     
     setLoading(true);
     
-    const { error } = await signIn(loginData.email, loginData.password);
-    if (error) {
-      toast.error(error.message || "Error al iniciar sesión");
+    try {
+      const { error } = await signIn(loginData.email, loginData.password);
+      if (error) {
+        toast.error(error.message || "Error al iniciar sesión");
+        return;
+      }
+      
+      toast.success("¡Bienvenida de nuevo!");
+      navigate("/home");
+    } catch (err: any) {
+      const msg = err?.message || "Error al iniciar sesión";
+      // Mensaje más claro si Supabase no está configurado en producción
+      if (msg.includes("Supabase não configurado") || msg.toLowerCase().includes("supabase")) {
+        toast.error("Supabase no está configurado: agrega VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel y vuelve a desplegar.");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    toast.success("¡Bienvenida de nuevo!");
-    navigate("/home");
-    setLoading(false);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -57,20 +67,29 @@ const Auth = () => {
 
     setLoading(true);
     
-    const { data, error } = await signUp(registerData.email, registerData.password);
-    if (error) {
-      toast.error(error.message || "Error al crear la cuenta");
-      setLoading(false);
-      return;
-    }
+    try {
+      const { data, error } = await signUp(registerData.email, registerData.password);
+      if (error) {
+        toast.error(error.message || "Error al crear la cuenta");
+        return;
+      }
 
-    if (data?.session) {
-      toast.success("¡Cuenta creada con éxito!");
-      navigate("/home");
-    } else {
-      toast.success("Revisa tu email para confirmar la cuenta");
+      if (data?.session) {
+        toast.success("¡Cuenta creada con éxito!");
+        navigate("/home");
+      } else {
+        toast.success("Revisa tu email para confirmar la cuenta");
+      }
+    } catch (err: any) {
+      const msg = err?.message || "Error al crear la cuenta";
+      if (msg.includes("Supabase não configurado") || msg.toLowerCase().includes("supabase")) {
+        toast.error("Supabase no está configurado: agrega VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel y vuelve a desplegar.");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
