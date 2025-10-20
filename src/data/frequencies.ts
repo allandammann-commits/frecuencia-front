@@ -29,6 +29,7 @@ export const frequencies: Frequency[] = [
     usageTip: "Escucha con audífonos en un lugar tranquilo, cierra los ojos y visualiza el reencuentro con emociones positivas.",
     unlockDay: 1,
     isPremium: false,
+    audioSrc: "/frecuenciadelreencuentro.mp3",
   },
   {
     id: 2,
@@ -41,8 +42,9 @@ export const frequencies: Frequency[] = [
     accentColorHex: "#10B981",
     idealFor: "Después de peleas o malentendidos graves",
     usageTip: "Escucha antes de dormir. Mientras escuchas, respira profundo y libera mentalmente cada resentimiento.",
-    unlockDay: 3,
+    unlockDay: 1,
     isPremium: false,
+    audioSrc: "/frecuenciadereconciliacion.mp3",
   },
   {
     id: 3,

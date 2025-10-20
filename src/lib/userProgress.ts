@@ -4,7 +4,7 @@ export const PROGRAM_TOTAL_DAYS = 7
 
 export type UserProgressRow = {
   user_id: string
-  started_at: string // date
+  started_at: string // date or timestamp
   last_unlocked_day: number
   last_seen_at: string
 }
@@ -18,9 +18,8 @@ function clampDay(day: number): number {
 function computeCurrentDay(startedAt: string): number {
   const start = new Date(startedAt)
   const now = new Date()
-  const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate())
-  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const diffDays = Math.floor((nowDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  const diffMs = now.getTime() - start.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1
   return clampDay(diffDays)
 }
 
@@ -45,10 +44,10 @@ export async function getOrInitUserProgress(): Promise<{ data: UserProgressRow |
       return { data: existing as UserProgressRow, error: null }
     }
 
-    // Initialize at day 1
+    // Initialize at day 1 (store full timestamp for better 24h accuracy; DB may cast to date)
     const payload = {
       user_id: user.id,
-      started_at: new Date().toISOString().slice(0, 10), // local date string YYYY-MM-DD
+      started_at: new Date().toISOString(),
       last_unlocked_day: 1,
       last_seen_at: new Date().toISOString(),
     }

@@ -3,9 +3,56 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { signOut } from "@/lib/auth";
+import { useEffect, useState } from "react";
+import { getUser } from "@/lib/auth";
+import { getMyProgress } from "@/lib/progress";
 
 const Profile = () => {
   const navigate = useNavigate();
+
+  const [profileName, setProfileName] = useState<string>("");
+  const [profileEmail, setProfileEmail] = useState<string>("");
+  const [daysActive, setDaysActive] = useState<number>(0);
+  const [freqCount, setFreqCount] = useState<number>(0);
+  const [tasksCount, setTasksCount] = useState<number>(0);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { user, error } = await getUser();
+        if (error) {
+          console.warn("[Profile] getUser error", error);
+        }
+        const name = (user?.user_metadata as any)?.name || user?.email?.split("@")[0] || "";
+        setProfileName(name || "");
+        setProfileEmail(user?.email || "");
+      } catch (e) {
+        console.warn("[Profile] falha ao carregar usuário", e);
+      }
+
+      try {
+        const { data, error } = await getMyProgress();
+        if (error) {
+          console.warn("[Profile] getMyProgress error", error);
+          toast.info("No se pudieron cargar estadísticas");
+        }
+        const entries = Array.isArray(data) ? (data as any[]) : [];
+        const uniqueDays = new Set(
+          entries
+            .map((e: any) => e?.listened_at)
+            .filter(Boolean)
+            .map((ts: string) => new Date(ts).toISOString().slice(0, 10))
+        );
+        setDaysActive(uniqueDays.size);
+        const freqSet = new Set(entries.map((e: any) => e?.frequency_id).filter((id: any) => id != null));
+        setFreqCount(freqSet.size);
+        const completedCount = entries.filter((e: any) => e?.status === "COMPLETED").length;
+        setTasksCount(completedCount);
+      } catch (e) {
+        console.warn("[Profile] falha ao carregar progresso", e);
+      }
+    })();
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await signOut();
@@ -57,10 +104,10 @@ const Profile = () => {
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent mx-auto mb-4 flex items-center justify-center">
           <User size={48} className="text-white" />
         </div>
-        <h2 className="font-display text-2xl font-bold mb-1">María González</h2>
+        <h2 className="font-display text-2xl font-bold mb-1">{profileName || "Usuario"}</h2>
         <p className="text-muted-foreground flex items-center justify-center gap-2">
           <Mail size={16} />
-          maria@email.com
+          {profileEmail || ""}
         </p>
         <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary-light text-sm font-medium">
           <span className="w-2 h-2 rounded-full bg-primary animate-glow-pulse" />
@@ -71,15 +118,15 @@ const Profile = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="glass-card rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold gradient-text mb-1">3</div>
+          <div className="text-2xl font-bold gradient-text mb-1">{daysActive}</div>
           <p className="text-xs text-muted-foreground">Días activos</p>
         </div>
         <div className="glass-card rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold gradient-text mb-1">3</div>
+          <div className="text-2xl font-bold gradient-text mb-1">{freqCount}</div>
           <p className="text-xs text-muted-foreground">Frecuencias</p>
         </div>
         <div className="glass-card rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold gradient-text mb-1">8</div>
+          <div className="text-2xl font-bold gradient-text mb-1">{tasksCount}</div>
           <p className="text-xs text-muted-foreground">Tareas</p>
         </div>
       </div>

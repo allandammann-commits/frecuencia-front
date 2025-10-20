@@ -1,10 +1,14 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Play, Pause, Lock, Volume2, Info, Headphones, Clock } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { frequencies } from "@/data/frequencies";
 import { recordProgress } from "@/lib/progress";
+import { updateProgressOnEntry } from "@/lib/userProgress";
+import { toast } from "sonner";
 
 const Frequencies = () => {
   const [playingId, setPlayingId] = useState<number | null>(null);
@@ -12,7 +16,22 @@ const Frequencies = () => {
   const [selectedFrequency, setSelectedFrequency] = useState<typeof frequencies[0] | null>(null);
   const [playerFrequency, setPlayerFrequency] = useState<typeof frequencies[0] | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const currentDay = 3; // Simular día actual - depois integrar com backend
+  const [currentDay, setCurrentDay] = useState<number>(1);
+  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { currentDay, error } = await updateProgressOnEntry();
+        if (error) {
+          console.warn("[Frequencies] updateProgressOnEntry error:", error);
+        }
+        setCurrentDay(currentDay || 1);
+      } catch (e: any) {
+        console.warn("[Frequencies] erro ao obter progresso:", e);
+      }
+    })();
+  }, []);
 
   const openPlayer = (freq: typeof frequencies[0]) => {
     setPlayerFrequency(freq);
@@ -20,6 +39,42 @@ const Frequencies = () => {
   };
 
   const isUnlocked = (unlockDay: number) => currentDay >= unlockDay;
+
+  const handleAudioEnded = async () => {
+    try {
+      if (!playerFrequency) return;
+      await recordProgress({
+        frequencyId: playerFrequency.id,
+        status: 'COMPLETED',
+        durationSeconds: Math.round(audioRef.current?.duration || 0),
+        volume: volume[0]
+      });
+      await updateProgressOnEntry();
+      toast.success("Sessão concluída! Progreso atualizado.");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao registrar conclusão");
+    }
+  };
+
+  const handleCompleteTask = async () => {
+    try {
+      if (!playerFrequency) {
+        toast.error("Abra uma frequência para confirmar a tarefa");
+        return;
+      }
+      await recordProgress({
+        frequencyId: playerFrequency.id,
+        status: 'COMPLETED',
+        durationSeconds: Math.round(audioRef.current?.currentTime || audioRef.current?.duration || 0),
+        volume: volume[0]
+      });
+      await updateProgressOnEntry();
+      toast.success("Tarefa do dia confirmada! Conteúdo do próximo dia será liberado automaticamente.");
+      setConfirmOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message || "Não foi possível confirmar a tarefa");
+    }
+  };
 
   return (
     <div className="min-h-screen pb-24 px-4 pt-6">
@@ -243,12 +298,7 @@ const Frequencies = () => {
                       status: 'STARTED',
                       volume: volume[0]
                     })}
-                    onEnded={() => recordProgress({
-                      frequencyId: playerFrequency.id,
-                      status: 'COMPLETED',
-                      durationSeconds: Math.round(audioRef.current?.duration || 0),
-                      volume: volume[0]
-                    })}
+                    onEnded={handleAudioEnded}
                   />
                   {!playerFrequency.audioSrc && (
                     <p className="mt-2 text-xs text-muted-foreground">
@@ -291,6 +341,27 @@ const Frequencies = () => {
                     <li>Si puedes, escucha al menos una vez al día.</li>
                   </ul>
                   <p className="text-sm mt-3">Consejo: {playerFrequency.usageTip}</p>
+                </div>
+
+                {/* Complete Task Action */}
+                <div className="rounded-xl p-4 glass-card">
+                  <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button className="w-full">Tarefa completa</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar tarefa do dia</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Confirme que você concluiu sua sessão de hoje. Vamos registrar seu progresso e manter o desbloqueio diário.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleCompleteTask}>Confirmar</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </>
