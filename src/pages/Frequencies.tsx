@@ -16,6 +16,9 @@ const Frequencies = () => {
   const [selectedFrequency, setSelectedFrequency] = useState<typeof frequencies[0] | null>(null);
   const [playerFrequency, setPlayerFrequency] = useState<typeof frequencies[0] | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const mediaSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [currentDay, setCurrentDay] = useState<number>(1);
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
@@ -40,39 +43,71 @@ const Frequencies = () => {
 
   const isUnlocked = (unlockDay: number) => currentDay >= unlockDay;
 
+  const setupAudioGraph = async () => {
+    try {
+      if (!audioRef.current) return;
+      if (audioCtxRef.current) return; // já configurado
+      const AudioCtxCtor = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtxCtor) return;
+      const ctx: AudioContext = new AudioCtxCtor();
+      audioCtxRef.current = ctx;
+      try { await ctx.resume(); } catch {}
+      const source = ctx.createMediaElementSource(audioRef.current);
+      mediaSourceRef.current = source;
+      const gain = ctx.createGain();
+      gain.gain.value = (volume[0] || 0) / 100;
+      gainNodeRef.current = gain;
+      source.connect(gain).connect(ctx.destination);
+      // Garanta que o volume do elemento permaneça em 1 quando usando WebAudio
+      audioRef.current.volume = 1;
+    } catch (err) {
+      console.warn('[Audio] setupAudioGraph falhou', err);
+    }
+  };
+
   const handleAudioEnded = async () => {
     try {
       if (!playerFrequency) return;
-      await recordProgress({
+      const res = await recordProgress({
         frequencyId: playerFrequency.id,
         status: 'COMPLETED',
         durationSeconds: Math.round(audioRef.current?.duration || 0),
         volume: volume[0]
       });
       await updateProgressOnEntry();
-      toast.success("Sessão concluída! Progreso atualizado.");
+      if ((res as any)?.error) {
+        toast.error("No pudimos registrar en el servidor. Guardamos localmente.");
+      } else {
+        toast.success("¡Sesión concluida! Progreso actualizado.");
+      }
     } catch (e: any) {
-      toast.error(e?.message || "Falha ao registrar conclusão");
+      console.warn("[Frequencies] falha ao registrar conclusão:", e?.message || e);
+      toast.error("Ocurrió un error al registrar tu sesión.");
     }
   };
 
   const handleCompleteTask = async () => {
     try {
       if (!playerFrequency) {
-        toast.error("Abra uma frequência para confirmar a tarefa");
+        toast.error("Abra una frecuencia para confirmar la tarea");
         return;
       }
-      await recordProgress({
+      const res = await recordProgress({
         frequencyId: playerFrequency.id,
         status: 'COMPLETED',
         durationSeconds: Math.round(audioRef.current?.currentTime || audioRef.current?.duration || 0),
         volume: volume[0]
       });
       await updateProgressOnEntry();
-      toast.success("Tarefa do dia confirmada! Conteúdo do próximo dia será liberado automaticamente.");
+      if ((res as any)?.error) {
+        toast.error("No pudimos registrar en el servidor. Guardamos localmente.");
+      } else {
+        toast.success("¡Tarea del día confirmada! Progreso actualizado.");
+      }
       setConfirmOpen(false);
     } catch (e: any) {
-      toast.error(e?.message || "Não foi possível confirmar a tarefa");
+      console.warn("[Frequencies] não foi possível confirmar a tarefa:", e?.message || e);
+      toast.error("Ocurrió un error al confirmar la tarea.");
     }
   };
 
@@ -183,12 +218,9 @@ const Frequencies = () => {
               {/* Progress Bar (when playing) */}
               {playingId === freq.id && (
                 <div className="mt-4 pt-4 border-t border-primary/20">
-                  <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
+                  <div className="h-2 bg-primary/20 rounded-full overflow-hidden">
                     <div 
-                      className="h-full w-1/3 animate-pulse"
-                      style={{
-                        background: `linear-gradient(90deg, ${freq.accentColor}, ${freq.accentColorHex})`
-                      }}
+                      className="h-full w-1/3 animate-pulse bg-gradient-to-r from-primary to-accent shadow-[0_0_24px_hsl(var(--primary)/.35)]"
                     />
                   </div>
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
@@ -286,18 +318,23 @@ const Frequencies = () => {
                 <div className="rounded-xl p-4 border" style={{ borderColor: `${playerFrequency.accentColorHex}40` }}>
                   <div className="flex items-center gap-3 mb-3">
                     <Headphones size={20} className="text-primary" />
-                    <span className="text-sm text-muted-foreground">Usa audífonos para una experiencia óptima</span>
+                    <span className="text-sm text-muted-foreground">Usa audífonos para uma experiencia óptima</span>
                   </div>
                   <audio
                     ref={audioRef}
                     controls
                     src={playerFrequency.audioSrc || ""}
                     className="w-full"
-                    onPlay={() => recordProgress({
-                      frequencyId: playerFrequency.id,
-                      status: 'STARTED',
-                      volume: volume[0]
-                    })}
+                    crossOrigin="anonymous"
+                    playsInline
+                    onPlay={() => {
+                      recordProgress({
+                        frequencyId: playerFrequency!.id,
+                        status: 'STARTED',
+                        volume: volume[0]
+                      });
+                      setupAudioGraph();
+                    }}
                     onEnded={handleAudioEnded}
                   />
                   {!playerFrequency.audioSrc && (
@@ -313,8 +350,12 @@ const Frequencies = () => {
                       value={volume}
                       onValueChange={(val) => {
                         setVolume(val);
-                        if (audioRef.current) {
-                          audioRef.current.volume = (val[0] || 0) / 100;
+                        const vol = (val[0] || 0) / 100;
+                        if (gainNodeRef.current) {
+                          gainNodeRef.current.gain.value = vol;
+                        } else if (audioRef.current) {
+                          // fallback para navegadores que permitem controlar volume do elemento
+                          audioRef.current.volume = vol;
                         }
                       }}
                       max={100}

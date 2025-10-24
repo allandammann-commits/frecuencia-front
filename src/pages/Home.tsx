@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { updateProgressOnEntry } from "@/lib/userProgress";
 import { getUser } from "@/lib/auth";
 import { toast } from "sonner";
+import { getProgressSummary } from "@/lib/progress";
 
 const PROGRAM_TOTAL_DAYS = 7;
 
@@ -15,6 +16,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [currentDay, setCurrentDay] = useState<number>(1);
   const [userName, setUserName] = useState<string>("")
+  const [summaryPct, setSummaryPct] = useState<number>(0);
+  const [summaryCounts, setSummaryCounts] = useState<{ completed: number; total: number }>({ completed: 0, total: 0 });
 
   useEffect(() => {
     // Atualiza desbloqueios e dia atual ao entrar na Home
@@ -22,11 +25,12 @@ const Home = () => {
       try {
         const { currentDay, error } = await updateProgressOnEntry();
         if (error) {
-          toast.error("Não foi possível atualizar seu progresso");
+          console.warn("[Home] updateProgressOnEntry error:", error);
         }
-        setCurrentDay(currentDay);
+        setCurrentDay(currentDay || 1);
       } catch (e: any) {
-        toast.error(e?.message || "Erro ao obter progresso");
+        console.warn("[Home] erro ao obter progresso:", e?.message || e);
+        setCurrentDay(1);
       }
     })();
 
@@ -38,10 +42,28 @@ const Home = () => {
         setUserName(name);
       }
     })();
+
+    // Carrega resumo de progresso (0% inicial; atualiza em eventos)
+    let mounted = true;
+    const loadSummary = async () => {
+      const { percentage, completedCount, totalCount, error } = await getProgressSummary();
+      if (error) console.warn("[Home] getProgressSummary error:", error);
+      if (mounted) {
+        setSummaryPct(percentage || 0);
+        setSummaryCounts({ completed: completedCount || 0, total: totalCount || 0 });
+      }
+    };
+    loadSummary();
+    const handler = () => loadSummary();
+    window.addEventListener("progress:update", handler as any);
+    return () => {
+      mounted = false;
+      window.removeEventListener("progress:update", handler as any);
+    };
   }, []);
 
   const totalDays = PROGRAM_TOTAL_DAYS;
-  const progressPercentage = useMemo(() => (currentDay / totalDays) * 100, [currentDay]);
+  const progressPercentage = useMemo(() => summaryPct, [summaryPct]);
   const todayFrequencies = useMemo(() => getTodayFrequencies(currentDay), [currentDay]);
 
   return (
@@ -51,7 +73,7 @@ const Home = () => {
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-12 h-12" />
           <div>
-            <h3 className="font-display text-xl font-semibold">{userName ? `Hola, ${userName}` : "Bienvenida"}</h3>
+            <h2 className="font-display text-2xl font-bold gradient-text">{userName ? `Hola, ${userName}` : "Bienvenida"}</h2>
             <p className="text-sm text-muted-foreground">Día {currentDay} de tu transformación</p>
           </div>
         </div>
@@ -62,10 +84,10 @@ const Home = () => {
       </header>
 
       {/* Progress Card */}
-      <div className="glass-card rounded-2xl p-6 mb-6 animate-slide-up">
+      <div className="glass-card rounded-2xl p-6 mb-6 animate-slide-up shadow-lg">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-display text-2xl font-bold mb-1">Tu Progreso Diario</h2>
+            <h2 className="font-display text-2xl font-bold mb-1">Tu Progreso</h2>
             <p className="text-muted-foreground">Día {currentDay} de {totalDays}</p>
           </div>
           <div className="text-right">
@@ -74,7 +96,10 @@ const Home = () => {
           </div>
         </div>
         
-        <Progress value={progressPercentage} className="h-3 mb-4" />
+        <Progress value={progressPercentage} className="h-3 mb-2" />
+        <div className="text-xs text-muted-foreground mb-2">
+          Frecuencias completadas {summaryCounts.completed} de {summaryCounts.total}
+        </div>
         
         <div className="flex items-center gap-2 text-sm text-primary-light">
           <Sparkles size={16} />
@@ -84,7 +109,7 @@ const Home = () => {
 
       {/* Today's Frequencies */}
       <div className="mb-6">
-        <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2">
+        <h2 className="font-display text-xl font-semibold mb-4 flex items-center gap-2 gradient-text">
           <Headphones size={24} className="text-primary" />
           Frecuencias Disponibles
         </h2>

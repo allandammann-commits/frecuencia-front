@@ -4,10 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useMemo, useState } from "react";
 import { getUnlockedDays, PROGRAM_TOTAL_DAYS, updateProgressOnEntry } from "@/lib/userProgress";
 import { toast } from "sonner";
+import { getProgressSummary } from "@/lib/progress";
 
 const ProgressPage = () => {
   const [unlockedDays, setUnlockedDays] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [summary, setSummary] = useState<{ percentage: number; completedCount: number; totalCount: number; sessionsCount: number }>({ percentage: 0, completedCount: 0, totalCount: 0, sessionsCount: 0 });
 
   useEffect(() => {
     (async () => {
@@ -22,6 +24,11 @@ const ProgressPage = () => {
           // Silenciar toast para evitar incômodo ao usuário; manter lógica intacta
         }
         setUnlockedDays(days || [1]);
+
+        // Carrega resumo (0% inicial) e atualiza automaticamente via evento
+        const { percentage, completedCount, totalCount, sessionsCount, error: summaryError } = await getProgressSummary();
+        if (summaryError) console.warn("[Progress] getProgressSummary error:", summaryError);
+        setSummary({ percentage: percentage || 0, completedCount: completedCount || 0, totalCount: totalCount || 0, sessionsCount: sessionsCount || 0 });
       } catch (e: any) {
         const msg = String(e?.message || e);
         console.error("[Progress] Erro ao carregar progresso:", msg);
@@ -31,18 +38,26 @@ const ProgressPage = () => {
         setLoading(false);
       }
     })();
+
+    const handler = async () => {
+      const { percentage, completedCount, totalCount, sessionsCount, error } = await getProgressSummary();
+      if (error) console.warn("[Progress] getProgressSummary error:", error);
+      setSummary({ percentage: percentage || 0, completedCount: completedCount || 0, totalCount: totalCount || 0, sessionsCount: sessionsCount || 0 });
+    };
+    window.addEventListener("progress:update", handler as any);
+    return () => window.removeEventListener("progress:update", handler as any);
   }, []);
 
   const currentDay = useMemo(() => (unlockedDays.length ? Math.max(...unlockedDays) : 1), [unlockedDays]);
-  const progressPercentage = useMemo(() => (currentDay / PROGRAM_TOTAL_DAYS) * 100, [currentDay]);
+  const progressPercentage = useMemo(() => summary.percentage, [summary.percentage]);
 
-  const totalSessions = unlockedDays.length * 2;
+  const totalSessions = summary.sessionsCount;
   const streakDays = unlockedDays.length;
 
   return (
     <div className="min-h-screen pb-24 px-4 pt-6">
       <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold">Mi Progreso</h1>
+        <h1 className="font-display text-2xl font-bold gradient-text">Mi Progreso</h1>
         <p className="text-muted-foreground">Resumen y estadísticas del programa</p>
       </header>
 
@@ -63,7 +78,8 @@ const ProgressPage = () => {
             </>
           ) : (
             <>
-              <Progress value={progressPercentage} className="h-3 mb-3" />
+              <Progress value={progressPercentage} className="h-3 mb-1" />
+              <p className="text-xs text-muted-foreground mb-2">Frecuencias completadas {summary.completedCount} de {summary.totalCount}</p>
               <p className="text-sm text-muted-foreground">Has desbloqueado {unlockedDays.length} días</p>
             </>
           )}
@@ -121,7 +137,7 @@ const ProgressPage = () => {
               return (
                 <span
                   key={day}
-                  className={`px-3 py-1 rounded-full text-sm ${unlocked ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                  className={`px-3 py-1 rounded-full text-sm ${unlocked ? "bg-gradient-to-r from-primary to-accent text-white shadow-md" : "bg-muted text-muted-foreground"}`}
                 >
                   Día {day}
                 </span>

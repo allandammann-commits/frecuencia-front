@@ -31,7 +31,12 @@ export async function getOrInitUserProgress(): Promise<{ data: UserProgressRow |
     const user = userData.user
     if (!user) return { data: null, error: new Error('Usuário não autenticado') }
 
-    // Try to get existing progress
+    // Garante existência do usuário na tabela public.users (FK alvo)
+    await supabase
+      .from('users')
+      .upsert({ id: user.id, email: user.email, password_hash: 'auth-managed' }, { onConflict: 'id' })
+
+    // Tenta obter progresso existente
     const { data: existing, error: selError } = await supabase
       .from('user_progress')
       .select('*')
@@ -44,10 +49,11 @@ export async function getOrInitUserProgress(): Promise<{ data: UserProgressRow |
       return { data: existing as UserProgressRow, error: null }
     }
 
-    // Initialize at day 1 (store full timestamp for better 24h accuracy; DB may cast to date)
+    // Inicializa no dia 1
+    const todayDate = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
     const payload = {
       user_id: user.id,
-      started_at: new Date().toISOString(),
+      started_at: todayDate,
       last_unlocked_day: 1,
       last_seen_at: new Date().toISOString(),
     }
@@ -71,7 +77,7 @@ export async function updateProgressOnEntry(): Promise<{ currentDay: number, pro
   const currentDay = computeCurrentDay(progress.started_at)
   const supabase = supabaseClient()
 
-  // Update last_seen_at always; bump last_unlocked_day if needed
+  // Atualiza sempre last_seen_at; aumenta last_unlocked_day se necessário
   const newLastUnlocked = Math.max(progress.last_unlocked_day ?? 1, currentDay)
 
   const { data: updated, error: updError } = await supabase
