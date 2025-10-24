@@ -21,6 +21,12 @@ export type RecordProgressPayload = {
 // Fallback local para usuários não autenticados ou erros ao salvar no Supabase
 const LOCAL_PROGRESS_KEY = "local-progress-entries";
 
+export function clearLocalProgress() {
+  try {
+    localStorage.removeItem(LOCAL_PROGRESS_KEY);
+  } catch {}
+}
+
 function saveLocalProgressEntry(payload: RecordProgressPayload) {
   try {
     const raw = localStorage.getItem(LOCAL_PROGRESS_KEY);
@@ -211,42 +217,63 @@ export async function getProgressSummary(): Promise<ProgressSummary> {
     const { user } = await getUser();
     const supabase = supabaseClient();
 
-    // Total é fixo: 14 frequências no programa
     const totalCount = TOTAL_FREQUENCIES;
 
-    // Coletas
     let remoteEntries: any[] = [];
     if (user) {
       const { data: entries, error: entriesError } = await supabase
         .from("progress_entries")
         .select("frequency_id,status")
         .eq("user_id", user.id);
-      if (entriesError) {
-        console.warn("[progress] getProgressSummary entries error:", entriesError.message);
-      } else {
-        remoteEntries = (entries as any[]) || [];
-      }
+      if (!entriesError) remoteEntries = (entries as any[]) || [];
     }
     const localEntries = getLocalProgressEntries();
 
-    // Combina e filtra apenas concluídas
-    const combined = [...remoteEntries, ...localEntries];
-    const completedOnly = combined.filter((e) => e?.status === "COMPLETED");
+    if (user) {
+      const completedOnly = remoteEntries.filter((e) => e?.status === "COMPLETED");
+      const sessionsCount = completedOnly.length;
+      const completedCount = Math.min(sessionsCount, totalCount);
+      const percentage = Math.min(100, sessionsCount * PERCENT_PER_FREQUENCY);
 
-    const sessionsCount = completedOnly.length;
-    const completedCount = Math.min(sessionsCount, totalCount);
-    const percentage = Math.min(100, sessionsCount * PERCENT_PER_FREQUENCY);
+      const { data: freqRows, error: freqErr } = await supabase
+        .from("frequencies")
+        .select("id,unlock_day,order_in_day");
+      const idToDay = new Map<number, number>();
+      if (!freqErr) {
+        for (const r of (freqRows as any[]) || []) idToDay.set(r.id, r.unlock_day);
+      }
 
-    // Por dia (apenas referência com base no catálogo local)
-    const byDay: Array<{ day: number; completed: number; total: number }> = [];
+      const byDay: Array<{ day: number; completed: number; total: number }> = [];
+      for (let day = 1; day <= 7; day++) {
+        const total = frequencies.filter((f) => f.unlockDay === day).length;
+        const completed = completedOnly.reduce((acc, e) => acc + (idToDay.get(e.frequency_id) === day ? 1 : 0), 0);
+        byDay.push({ day, completed, total });
+      }
+
+      return { percentage, completedCount, sessionsCount, totalCount, byDay };
+    }
+
+    // Usuária não autenticada: usar apenas progresso local
+    const completedOnlyLocal = localEntries.filter((e) => e?.status === "COMPLETED");
+    const sessionsCountLocal = completedOnlyLocal.length;
+    const completedCountLocal = Math.min(sessionsCountLocal, totalCount);
+    const percentageLocal = Math.min(100, sessionsCountLocal * PERCENT_PER_FREQUENCY);
+
+    const byDayLocal: Array<{ day: number; completed: number; total: number }> = [];
     for (let day = 1; day <= 7; day++) {
       const todays = frequencies.filter((f) => f.unlockDay === day);
       const total = todays.length;
-      const completed = todays.filter((f) => completedOnly.some((e) => String(e.frequency_id) === String(f.id))).length;
-      byDay.push({ day, completed, total });
+      const completed = todays.filter((f) => completedOnlyLocal.some((e) => String(e.frequency_id) === String(f.id))).length;
+      byDayLocal.push({ day, completed, total });
     }
 
-    return { percentage, completedCount, sessionsCount, totalCount, byDay };
+    return {
+      percentage: percentageLocal,
+      completedCount: completedCountLocal,
+      sessionsCount: sessionsCountLocal,
+      totalCount,
+      byDay: byDayLocal,
+    };
   } catch (e: any) {
     console.warn("[progress] getProgressSummary error:", e?.message || e);
     return { percentage: 0, completedCount: 0, sessionsCount: 0, totalCount: TOTAL_FREQUENCIES, byDay: [], error: e?.message || String(e) };
