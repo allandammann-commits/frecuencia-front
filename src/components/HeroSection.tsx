@@ -5,8 +5,8 @@ import heroWoman from "@/assets/hero-woman.jpg";
 import mulheresIcon from "@/assets/mulheres-new.png";
 export const HeroSection = () => {
   const [embedSrc, setEmbedSrc] = useState<string | null>(null);
-  const [progress, setProgress] = useState<number>(0);
-  const [unlocked, setUnlocked] = useState<boolean>(false);
+  const [progress] = useState<number>(100);
+  const [unlocked] = useState<boolean>(true);
 
   useEffect(() => {
     const s = document.createElement("script");
@@ -19,21 +19,6 @@ export const HeroSection = () => {
     setEmbedSrc(fullSrc);
   }, []);
 
-  useEffect(() => {
-    const durationMs = 180 * 1000; // 3 minutos
-    const start = Date.now();
-    const tick = () => {
-      const elapsed = Date.now() - start;
-      const pct = Math.min(100, Math.round((elapsed / durationMs) * 100));
-      setProgress(pct);
-      if (elapsed >= durationMs) {
-        setUnlocked(true);
-        clearInterval(intervalId);
-      }
-    };
-    const intervalId = setInterval(tick, 1000);
-    return () => clearInterval(intervalId);
-  }, []);
 
   const scrollToPricing = () => {
     const pricingSection = document.getElementById("pricing");
@@ -86,23 +71,6 @@ export const HeroSection = () => {
           
           <div className={`px-2 ${unlocked ? "space-y-2 sm:space-y-3 mt-2 sm:mt-3 mb-0 sm:mb-1" : "space-y-4 sm:space-y-5 mt-4 sm:mt-5 mb-6 sm:mb-8"}`}>
             <p className="text-base sm:text-lg font-medium text-primary">ESCUCHA SOLO 5 MINUTOS AL DÍA</p>
-            {/* Barra de carregamento e desbloqueio do acesso */}
-            <div className="mt-2 sm:mt-3 mb-1 sm:mb-2">
-              <p className="text-sm sm:text-base md:text-lg font-semibold text-foreground mb-3 sm:mb-4 tracking-wide">Cargando tu acceso</p>
-              <div className="w-full max-w-md mx-auto h-3 sm:h-4 md:h-5 bg-muted/60 rounded-full overflow-hidden ring-1 ring-primary/20 shadow-soft">
-                <div
-                  style={{ width: `${progress}%` }}
-                  className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-accent transition-[width] duration-1000 ease-linear animate-pulse-glow shadow-glow"
-                />
-              </div>
-            </div>
-            {unlocked && (
-              <div className="mt-0 sm:mt-1">
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-foreground animate-fade-in">
-                  Tu acceso ya fue liberado, desliza hasta el final para escuchar ahora
-                </p>
-              </div>
-            )}
             {!unlocked && (
               <>
                 <p className="text-xl sm:text-2xl font-bold text-foreground">

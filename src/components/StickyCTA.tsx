@@ -4,15 +4,7 @@ import { ArrowRight, X } from "lucide-react";
 
 // CTA fixo que aparece após ~3min20s para levar aos planos
 export const StickyCTA = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisible(true);
-    }, 200 * 1000); // ~3min20s
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [visible, setVisible] = useState(true);
 
   if (!visible) return null;
 

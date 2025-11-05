@@ -11,17 +11,14 @@ import { FAQSection } from "@/components/FAQSection";
 import { UrgencySection } from "@/components/UrgencySection";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
+import { TopNoticeBar } from "@/components/TopNoticeBar";
 
 const Index = () => {
-  const [showRest, setShowRest] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setShowRest(true), 180 * 1000); // 3 minutos
-    return () => clearTimeout(t);
-  }, []);
+  const [showRest] = useState(true);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground pt-12">
+      <TopNoticeBar />
       {/* Conteúdo inicial com VSL e imagem acima do bloco seguinte */}
       <HeroSection />
 
