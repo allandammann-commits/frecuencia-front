@@ -20,7 +20,7 @@ export const HeroSection = () => {
   }, []);
 
   useEffect(() => {
-    const durationMs = 180 * 1000; // 3 minutos
+    const durationMs = 120 * 1000; // 2 minutos
     const start = Date.now();
     const tick = () => {
       const elapsed = Date.now() - start;
@@ -123,19 +123,20 @@ export const HeroSection = () => {
           }}>
             <p className="text-red-400 font-bold text-base sm:text-lg mb-4 sm:mb-6">ATENCIÓN:</p>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
-              Esta frecuencia es tan poderosa que puede causar obsesión. Si no estás preparada para ser deseada intensamente, NO LA ESCUCHES.
+              No mezcles esta frecuencia con alcohol, drogas o emociones extremas. Su efecto se potencia con tu foco mental.
             </p>
-            <p className="text-foreground sm:text-base text-xs">
-              Tendrás el poder total sobre sus sentimientos... Activa este "deseo límbico" en su mente y él no podrá vivir más sin ti.
-            </p>
-          </div>
-        )}
-        
-        {!unlocked && (
-          <div className="mb-0 animate-fade-in" style={{
-            animationDelay: '1s'
-          }}>
-            <img src={mulheresIcon} alt="15.847 mujeres" className="w-64 sm:w-72 md:w-80 lg:w-96 h-auto mx-auto mb-0 hover-lift" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+                <img src={mulheresIcon} alt="Mulheres" className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-primary text-sm sm:text-base font-semibold">Más de 12.000 mujeres ya reprogramaron su energía</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <Button variant="default" className="font-semibold px-4 sm:px-6" onClick={scrollToPricing}>
+                  Quiero probar hoy
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
