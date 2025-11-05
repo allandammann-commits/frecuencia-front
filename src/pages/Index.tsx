@@ -16,7 +16,7 @@ const Index = () => {
   const [showRest, setShowRest] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowRest(true), 120 * 1000); // 2 minutos
+    const t = setTimeout(() => setShowRest(true), 180 * 1000); // 3 minutos
     return () => clearTimeout(t);
   }, []);
 
@@ -25,7 +25,7 @@ const Index = () => {
       {/* Conteúdo inicial com VSL e imagem acima do bloco seguinte */}
       <HeroSection />
 
-      {/* Após 2 minutos, o restante da página carrega */}
+      {/* Após 3 minutos, o restante da página carrega */}
       {showRest && (
         <>
           <VibrationalSection />
