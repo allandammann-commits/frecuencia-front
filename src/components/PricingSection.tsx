@@ -52,7 +52,7 @@ export const PricingSection = () => {
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Este valor será convertido a tu moneda local.</p>
               </div>
               
-              <a href="https://pay.hotmart.com/W99845697O?off=epltkvrf&bid=1760656427166" target="_blank" rel="noopener noreferrer">
+              <a href="https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10" target="_blank" rel="noopener noreferrer">
                 <Button variant="hero" className="w-full text-xs sm:text-sm px-3 py-3 sm:px-4 sm:py-4 hover-glow animate-pulse-glow">
                   🎧 QUIERO EL PLAN PREMIUM
                 </Button>
@@ -84,7 +84,7 @@ export const PricingSection = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Este valor será convertido a tu moneda local.</p>
             </div>
             
-            <a href="https://pay.hotmart.com/W99845697O?off=vr76jf4s" target="_blank" rel="noopener noreferrer">
+            <a href="https://pay.hotmart.com/W99845697O?off=vr76jf4s&checkoutMode=10" target="_blank" rel="noopener noreferrer">
               <Button variant="cta" className="w-full text-xs sm:text-sm px-3 py-3 sm:px-4 sm:py-4 hover-glow animate-pulse-glow">
                 🎧 QUIERO EL PLAN ESENCIAL
               </Button>
