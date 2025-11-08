@@ -74,7 +74,7 @@ const Guides = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Aprende técnicas poderosas para liberar el dolor emocional y prepararte para un nuevo comienzo.
             </p>
-            <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold hover-scale">
+            <button onClick={() => window.location.href = '/guides/sanando-heridas'} className="px-6 py-2 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold hover-scale">
               Leer Ahora
             </button>
           </div>

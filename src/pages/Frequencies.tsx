@@ -6,8 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { frequencies } from "@/data/frequencies";
-import { recordProgress } from "@/lib/progress";
-import { updateProgressOnEntry } from "@/lib/userProgress";
+import { recordProgress, updateProgressOnEntry } from "@/lib/progress";
 import { toast } from "sonner";
 
 const Frequencies = () => {
@@ -92,17 +91,20 @@ const Frequencies = () => {
         toast.error("Abra una frecuencia para confirmar la tarea");
         return;
       }
-      const res = await recordProgress({
+      
+      const payload = {
         frequencyId: playerFrequency.id,
-        status: 'COMPLETED',
-        durationSeconds: Math.round(audioRef.current?.currentTime || audioRef.current?.duration || 0),
-        volume: volume[0]
-      });
+        day: currentDay,
+        completedAt: new Date().toISOString()
+      };
+      
+      const success = await recordProgress(payload);
       await updateProgressOnEntry();
-      if ((res as any)?.error) {
-        toast.error("No pudimos registrar en el servidor. Guardamos localmente.");
-      } else {
+      
+      if (success) {
         toast.success("¡Tarea del día confirmada! Progreso actualizado.");
+      } else {
+        toast.error("Ocurrió un error al confirmar la tarea.");
       }
       setConfirmOpen(false);
     } catch (e: any) {

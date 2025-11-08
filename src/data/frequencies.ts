@@ -57,8 +57,9 @@ export const frequencies: Frequency[] = [
     accentColorHex: "#EF4444",
     idealFor: "Cuando la relación necesita más fuego y pasión",
     usageTip: "Escucha por la noche, visualízate irradiando una energía magnética y seductora.",
-    unlockDay: 4,
+    unlockDay: 1,
     isPremium: true,
+    audioSrc: "/frecuenciapasion.mp3",
   },
   {
     id: 4,
@@ -71,8 +72,9 @@ export const frequencies: Frequency[] = [
     accentColorHex: "#3B82F6",
     idealFor: "Cuando él está con otra persona o hay rivales",
     usageTip: "Escucha con intención firme pero sin apego ni desesperación. Confía en el proceso.",
-    unlockDay: 5,
+    unlockDay: 1,
     isPremium: true,
+    audioSrc: "/frecuenciaantirival.mp3",
   },
   {
     id: 5,
@@ -85,7 +87,7 @@ export const frequencies: Frequency[] = [
     accentColorHex: "#EC4899",
     idealFor: "Mantener su atención exclusiva en ti",
     usageTip: "Escucha mientras te preparas o te arreglas, infundiendo esa energía en tu presencia.",
-    unlockDay: 6,
+    unlockDay: 7,
     isPremium: true,
   },
   {

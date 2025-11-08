@@ -1,150 +1,211 @@
-import { Trophy, Flame, Headphones, Star, CalendarDays } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { useEffect, useState } from "react";
+import { Calendar, CheckCircle, Clock, Trophy, Target } from "lucide-react";
+import { Progress as ProgressBar } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useMemo, useState } from "react";
-import { getUnlockedDays, PROGRAM_TOTAL_DAYS, updateProgressOnEntry } from "@/lib/userProgress";
+import { getProgressSummary, updateProgressOnEntry } from "@/lib/progress";
 import { toast } from "sonner";
-import { getProgressSummary } from "@/lib/progress";
+
+const PROGRAM_TOTAL_DAYS = 7;
 
 const ProgressPage = () => {
-  const [unlockedDays, setUnlockedDays] = useState<number[]>([]);
+  const [currentDay, setCurrentDay] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
-  const [summary, setSummary] = useState<{ percentage: number; completedCount: number; totalCount: number; sessionsCount: number }>({ percentage: 0, completedCount: 0, totalCount: 0, sessionsCount: 0 });
+  const [summary, setSummary] = useState<{ 
+    percentage: number; 
+    completedCount: number; 
+    totalCount: number; 
+    byDay: Record<number, number> 
+  }>({ 
+    percentage: 0, 
+    completedCount: 0, 
+    totalCount: 0, 
+    byDay: {} 
+  });
 
   useEffect(() => {
-    (async () => {
+    const loadProgress = async () => {
       try {
-        const { error: updError } = await updateProgressOnEntry();
-        if (updError) {
-          console.warn("[Progress] updateProgressOnEntry error:", updError);
-        }
-        const { days, error } = await getUnlockedDays();
-        if (error) {
-          console.warn("[Progress] getUnlockedDays error:", error);
-          // Silenciar toast para evitar incômodo ao usuário; manter lógica intacta
-        }
-        setUnlockedDays(days || [1]);
-
-        // Carrega resumo (0% inicial) e atualiza automaticamente via evento
-        const { percentage, completedCount, totalCount, sessionsCount, error: summaryError } = await getProgressSummary();
-        if (summaryError) console.warn("[Progress] getProgressSummary error:", summaryError);
-        setSummary({ percentage: percentage || 0, completedCount: completedCount || 0, totalCount: totalCount || 0, sessionsCount: sessionsCount || 0 });
-      } catch (e: any) {
-        const msg = String(e?.message || e);
-        console.error("[Progress] Erro ao carregar progresso:", msg);
-        // Silenciar qualquer toast inesperado no carregamento inicial
-        setUnlockedDays([1]);
+        setLoading(true);
+        
+        // Atualiza progresso e obtém dia atual
+        const { currentDay } = await updateProgressOnEntry();
+        setCurrentDay(currentDay || 1);
+        
+        // Carrega resumo do progresso
+        const progressSummary = await getProgressSummary();
+        setSummary(progressSummary);
+        
+      } catch (error) {
+        console.error("[Progress] Erro ao carregar progresso:", error);
+        toast.error("Erro ao carregar progresso");
       } finally {
         setLoading(false);
       }
-    })();
-
-    const handler = async () => {
-      const { percentage, completedCount, totalCount, sessionsCount, error } = await getProgressSummary();
-      if (error) console.warn("[Progress] getProgressSummary error:", error);
-      setSummary({ percentage: percentage || 0, completedCount: completedCount || 0, totalCount: totalCount || 0, sessionsCount: sessionsCount || 0 });
     };
-    window.addEventListener("progress:update", handler as any);
-    return () => window.removeEventListener("progress:update", handler as any);
+
+    loadProgress();
+
+    // Escuta atualizações de progresso
+    const handleProgressUpdate = () => {
+      loadProgress();
+    };
+
+    window.addEventListener("progress:update", handleProgressUpdate);
+    return () => window.removeEventListener("progress:update", handleProgressUpdate);
   }, []);
 
-  const currentDay = useMemo(() => (unlockedDays.length ? Math.max(...unlockedDays) : 1), [unlockedDays]);
-  const progressPercentage = useMemo(() => summary.percentage, [summary.percentage]);
+  const getUnlockedDays = () => {
+    return Array.from({ length: currentDay }, (_, i) => i + 1);
+  };
 
-  const totalSessions = summary.sessionsCount;
-  const streakDays = unlockedDays.length;
+  const getDayStatus = (day: number) => {
+    if (day > currentDay) return "locked";
+    const completedInDay = summary.byDay[day] || 0;
+    return completedInDay > 0 ? "completed" : "available";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pb-24 px-4 pt-6">
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-32 w-full" />
+          <div className="grid grid-cols-7 gap-2">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24 px-4 pt-6">
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold gradient-text">Mi Progreso</h1>
-        <p className="text-muted-foreground">Resumen y estadísticas del programa</p>
+      <header className="mb-8">
+        <h1 className="font-display text-3xl font-bold gradient-text mb-2">
+          Tu Progreso
+        </h1>
+        <p className="text-muted-foreground">
+          Día {currentDay} de {PROGRAM_TOTAL_DAYS} • {summary.completedCount} de {summary.totalCount} completadas
+        </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 mb-6">
-        {/* Overall Progress */}
-        <div className="glass-card rounded-2xl p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="text-primary" />
-              <h2 className="font-semibold">Progreso del Programa</h2>
+      {/* Tarjeta de Progreso General */}
+      <Card className="glass-card mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-accent" />
+            Progreso General
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Completado</span>
+              <span className="text-2xl font-bold gradient-text">{summary.percentage}%</span>
             </div>
-            <span className="text-sm text-muted-foreground">Día {currentDay} de {PROGRAM_TOTAL_DAYS}</span>
+            <ProgressBar value={summary.percentage} className="h-3" />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{summary.completedCount} completadas</span>
+              <span>{summary.totalCount} total</span>
+            </div>
           </div>
-          {loading ? (
-            <>
-              <Progress value={0} className="h-3 mb-3" />
-              <Skeleton className="h-4 w-32" />
-            </>
-          ) : (
-            <>
-              <Progress value={progressPercentage} className="h-3 mb-1" />
-              <p className="text-xs text-muted-foreground mb-2">Frecuencias completadas {summary.completedCount} de {summary.totalCount}</p>
-              <p className="text-sm text-muted-foreground">Has desbloqueado {unlockedDays.length} días</p>
-            </>
-          )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Streak */}
-        <div className="glass-card rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Flame className="text-accent" />
-            <h2 className="font-semibold">Racha de Días</h2>
-          </div>
-          {loading ? (
-            <Skeleton className="h-8 w-24" />
-          ) : (
-            <div className="text-3xl font-bold">{streakDays} días</div>
-          )}
-          <p className="text-sm text-muted-foreground">Sigue escuchando para mantener tu racha</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Headphones className="text-primary-light" />
-            <h3 className="font-semibold">Sesiones</h3>
-          </div>
-          {loading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{totalSessions}</p>}
-          <p className="text-xs text-muted-foreground">Frecuencias completadas</p>
-        </div>
-
-        <div className="glass-card rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Star className="text-accent" />
-            <h3 className="font-semibold">Logros</h3>
-          </div>
-          {loading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{Math.min(unlockedDays.length, 5)}</p>}
-          <p className="text-xs text-muted-foreground">Desbloqueos conseguidos</p>
-        </div>
-      </div>
-
-      <div className="mt-6 glass-card rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Trophy className="text-primary" />
-          <h2 className="font-semibold">Días Desbloqueados</h2>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {loading ? (
-            Array.from({ length: PROGRAM_TOTAL_DAYS }).map((_, idx) => (
-              <Skeleton key={idx} className="h-6 w-20 rounded-full" />
-            ))
-          ) : (
-            Array.from({ length: PROGRAM_TOTAL_DAYS }).map((_, idx) => {
-              const day = idx + 1;
-              const unlocked = unlockedDays.includes(day);
+      {/* Calendario de Días */}
+      <Card className="glass-card mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-accent" />
+            Calendario de Transformación
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-7 gap-3">
+            {Array.from({ length: PROGRAM_TOTAL_DAYS }).map((_, index) => {
+              const day = index + 1;
+              const status = getDayStatus(day);
+              const completedInDay = summary.byDay[day] || 0;
+              
               return (
-                <span
+                <div
                   key={day}
-                  className={`px-3 py-1 rounded-full text-sm ${unlocked ? "bg-gradient-to-r from-primary to-accent text-white shadow-md" : "bg-muted text-muted-foreground"}`}
+                  className={`
+                    relative p-4 rounded-xl text-center transition-all duration-300
+                    ${status === "completed" 
+                      ? "bg-accent/20 border-2 border-accent text-accent" 
+                      : status === "available"
+                      ? "bg-primary/10 border-2 border-primary/30 text-primary hover:bg-primary/20"
+                      : "bg-muted/50 border-2 border-muted text-muted-foreground"
+                    }
+                  `}
                 >
-                  Día {day}
-                </span>
+                  <div className="font-bold text-lg mb-1">Día {day}</div>
+                  <div className="text-xs">
+                    {status === "completed" && (
+                      <div className="flex items-center justify-center gap-1">
+                        <CheckCircle className="w-3 h-3" />
+                        <span>{completedInDay}</span>
+                      </div>
+                    )}
+                    {status === "available" && (
+                      <div className="flex items-center justify-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>Disponible</span>
+                      </div>
+                    )}
+                    {status === "locked" && (
+                      <div className="flex items-center justify-center gap-1">
+                        <Target className="w-3 h-3" />
+                        <span>Bloqueado</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {status === "completed" && (
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Estadísticas Detalladas */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="glass-card">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-accent/20 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{summary.completedCount}</div>
+                <div className="text-xs text-muted-foreground">Completadas</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/20 rounded-lg">
+                <Target className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{currentDay}</div>
+                <div className="text-xs text-muted-foreground">Día Actual</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

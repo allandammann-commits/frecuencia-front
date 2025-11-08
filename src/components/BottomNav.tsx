@@ -8,7 +8,7 @@ const BottomNav = () => {
     { icon: Home, label: "Inicio", path: "/home" },
     { icon: Headphones, label: "Audios", path: "/frequencies" },
     { icon: BookOpen, label: "Guías", path: "/guides" },
-    { icon: TrendingUp, label: "Progreso", path: "/progress" },
+    { icon: TrendingUp, label: "Bonos", path: "/bonus" },
     { icon: User, label: "Perfil", path: "/profile" },
   ];
 

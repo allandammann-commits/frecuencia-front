@@ -4,281 +4,136 @@ import { frequencies } from "@/data/frequencies";
 
 export type ProgressSummary = {
   percentage: number;
-  completedCount: number; // Frequências únicas concluídas
-  sessionsCount: number;  // Número total de sessões concluídas
+  completedCount: number;
   totalCount: number;
-  byDay: Array<{ day: number; completed: number; total: number }>;
-  error?: string;
+  byDay: Record<number, number>;
 };
 
 export type RecordProgressPayload = {
   frequencyId: number;
-  status: "STARTED" | "COMPLETED";
-  durationSeconds?: number;
-  volume?: number;
+  day: number;
+  completedAt: string;
 };
 
-// Fallback local para usuários não autenticados ou erros ao salvar no Supabase
-const LOCAL_PROGRESS_KEY = "local-progress-entries";
-
-export function clearLocalProgress() {
-  try {
-    localStorage.removeItem(LOCAL_PROGRESS_KEY);
-  } catch {}
-}
-
-function saveLocalProgressEntry(payload: RecordProgressPayload) {
-  try {
-    const raw = localStorage.getItem(LOCAL_PROGRESS_KEY);
-    const list: any[] = raw ? JSON.parse(raw) : [];
-    list.push({
-      frequency_id: payload.frequencyId,
-      status: payload.status,
-      duration_seconds: payload.durationSeconds ?? null,
-      volume: payload.volume ?? null,
-      listened_at: new Date().toISOString(),
-    });
-    localStorage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(list));
-  } catch (e) {
-    console.warn("[progress] falha ao salvar fallback local:", e);
-  }
-}
-
-function getLocalProgressEntries(): any[] {
-  try {
-    const raw = localStorage.getItem(LOCAL_PROGRESS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.warn("[progress] falha ao ler fallback local:", e);
-    return [];
-  }
-}
-
 // Constantes para cálculo de progresso
-const TOTAL_FREQUENCIES = 14; // 2 por dia x 7 dias
-const PERCENT_PER_FREQUENCY = 7; // cada frequência concluída vale 7%
+const TOTAL_FREQUENCIES = frequencies.length; // Será 6 baseado no array de frequências
 
-// Mapeia o ID local (do catálogo em src/data/frequencies.ts) para o id do Supabase
-async function mapLocalToSupabaseFrequencyId(localId: number): Promise<number | null> {
+// Registra progresso de uma frequência
+export const recordProgress = async (payload: RecordProgressPayload): Promise<boolean> => {
   try {
-    const local = frequencies.find((f) => f.id === localId);
-    if (!local) return null;
+    // Salva no localStorage primeiro (sempre)
+    const localEntries = JSON.parse(localStorage.getItem("progress_entries") || "[]");
+    localEntries.push({ ...payload, timestamp: new Date().toISOString() });
+    localStorage.setItem("progress_entries", JSON.stringify(localEntries));
 
-    // Determina ordem dentro do dia com base na posição no array local
-    const sameDay = frequencies.filter((f) => f.unlockDay === local.unlockDay);
-    const orderIndex = sameDay.findIndex((f) => f.id === local.id);
-    const orderInDay = orderIndex >= 0 ? orderIndex + 1 : 1;
+    // Se usuário autenticado, tenta salvar no Supabase
+    const { user } = await getUser();
+    if (user) {
+      const supabase = supabaseClient();
+      
+      // Mapeia ID local para ID do Supabase
+      const frequency = frequencies.find(f => f.id === payload.frequencyId);
+      if (!frequency) {
+        console.warn(`[recordProgress] Frequency ${payload.frequencyId} não encontrada`);
+        return true; // Sucesso local mesmo sem encontrar
+      }
 
-    const supabase = supabaseClient();
-    const { data, error } = await supabase
-      .from("frequencies")
-      .select("id")
-      .eq("unlock_day", local.unlockDay)
-      .eq("order_in_day", orderInDay)
-      .limit(1)
-      .maybeSingle();
+      const { error } = await supabase.from("progress_entries").insert({
+        user_id: user.id,
+        frequency_id: payload.frequencyId,
+        day: payload.day,
+        completed_at: payload.completedAt,
+      });
 
-    if (error) {
-      console.warn("[progress] mapLocalToSupabaseFrequencyId error:", error.message);
-      return null;
+      if (error) {
+        console.error("[recordProgress] Erro Supabase:", error);
+        return true; // Sucesso local mesmo com erro no Supabase
+      }
     }
-    return (data as any)?.id ?? null;
-  } catch (e: any) {
-    console.warn("[progress] mapLocalToSupabaseFrequencyId unexpected error:", e?.message || e);
-    return null;
+
+    // Dispara evento para atualizar UI
+    window.dispatchEvent(new CustomEvent("progress:update"));
+    return true;
+  } catch (error) {
+    console.error("[recordProgress] Erro:", error);
+    return false;
   }
-}
+};
 
-// Garante que o catálogo de frequências no Supabase tenha as combinações (unlock_day, order_in_day)
-async function ensureSupabaseFrequencies() {
+// Obtém resumo do progresso
+export const getProgressSummary = async (): Promise<ProgressSummary> => {
   try {
-    const supabase = supabaseClient();
-    // Busca pares existentes no servidor
-    const { data: existing, error } = await supabase
-      .from("frequencies")
-      .select("unlock_day, order_in_day, id");
-    if (error) {
-      console.warn("[progress] ensureSupabaseFrequencies query error:", error.message);
-      return;
+    let remoteEntries: any[] = [];
+    
+    // Busca entradas remotas se usuário autenticado
+    const { user } = await getUser();
+    if (user) {
+      const supabase = supabaseClient();
+      const { data, error } = await supabase
+        .from("progress_entries")
+        .select("*")
+        .eq("user_id", user.id);
+      
+      if (error) {
+        console.warn("[getProgressSummary] Erro ao buscar progresso remoto:", error);
+      } else {
+        remoteEntries = data || [];
+      }
     }
-    const existingPairs = new Set<string>(
-      ((existing as any[]) || []).map((r) => `${r.unlock_day}:${r.order_in_day}`)
+
+    // Busca entradas locais
+    const localEntries = JSON.parse(localStorage.getItem("progress_entries") || "[]");
+    
+    // Combina entradas (prioriza remotas)
+    const allEntries = [...remoteEntries, ...localEntries];
+    const uniqueEntries = allEntries.filter((entry, index, self) => 
+      index === self.findIndex(e => 
+        e.frequency_id === entry.frequency_id && e.day === entry.day
+      )
     );
 
-    // Calcula pares necessários com base no catálogo local
-    const inserts: any[] = [];
-    const byDay: Record<number, number> = {};
-    for (const f of frequencies) {
-      const day = f.unlockDay;
-      byDay[day] = (byDay[day] || 0) + 1;
-      const order = byDay[day];
-      const key = `${day}:${order}`;
-      if (!existingPairs.has(key)) {
-        const slug = `dia${day}-freq${order}`;
-        const title = f.title || `Día ${day} - Frecuencia ${order}`;
-        const audioUrl = f.audioSrc || "https://example.com/audio/placeholder.mp3";
-        // Tenta extrair segundos da string duration (ex: "5 min")
-        const seconds = (() => {
-          try {
-            const m = /([0-9]+)\s*min/i.exec(f.duration || "");
-            return m ? parseInt(m[1], 10) * 60 : 300;
-          } catch {
-            return 300;
-          }
-        })();
-        inserts.push({
-          slug,
-          title,
-          description: f.shortDescription || null,
-          audio_url: audioUrl,
-          duration_seconds: seconds,
-          unlock_day: day,
-          order_in_day: order,
-          is_active: true,
-        });
-      }
-    }
-
-    if (inserts.length > 0) {
-      const { error: insError } = await supabase.from("frequencies").insert(inserts);
-      if (insError) {
-        console.warn("[progress] ensureSupabaseFrequencies insert error:", insError.message);
-      } else {
-        console.info(`[progress] ensureSupabaseFrequencies: inseridos ${inserts.length} itens faltantes.`);
-      }
-    }
-  } catch (e: any) {
-    console.warn("[progress] ensureSupabaseFrequencies unexpected error:", e?.message || e);
-  }
-}
-
-export async function recordProgress(payload: RecordProgressPayload) {
-  try {
-    const { user } = await getUser();
-
-    // Sem login: registra localmente e atualiza UI
-    if (!user) {
-      saveLocalProgressEntry(payload);
-      window.dispatchEvent(new CustomEvent("progress:update"));
-      return { ok: true, local: true } as const;
-    }
-
-    // Mapeia para frequency_id do Supabase
-    let supaFrequencyId = await mapLocalToSupabaseFrequencyId(payload.frequencyId);
-    if (!supaFrequencyId) {
-      // Tenta sincronizar catálogo no Supabase e remapear
-      await ensureSupabaseFrequencies();
-      supaFrequencyId = await mapLocalToSupabaseFrequencyId(payload.frequencyId);
-    }
-
-    if (!supaFrequencyId) {
-      console.warn("[progress] Não foi possível mapear frequência local para Supabase mesmo após sincronizar.");
-      saveLocalProgressEntry(payload);
-      window.dispatchEvent(new CustomEvent("progress:update"));
-      return { error: "frequency_map_failed", local: true } as const;
-    }
-
-    const supabase = supabaseClient();
-    const insertPayload = {
-      user_id: user.id,
-      frequency_id: supaFrequencyId,
-      status: payload.status,
-      duration_seconds: payload.durationSeconds ?? null,
-      volume: payload.volume ?? null,
-      listened_at: new Date().toISOString(),
-    };
-
-    const { error } = await supabase
-      .from("progress_entries")
-      .insert(insertPayload);
-
-    if (error) {
-      console.warn("[progress] recordProgress error:", error.message);
-      // Fallback local mesmo logada, para manter UI responsiva
-      saveLocalProgressEntry(payload);
-      window.dispatchEvent(new CustomEvent("progress:update"));
-      return { error: error.message, local: true };
-    }
-
-    // Atualiza UI em tempo real
-    window.dispatchEvent(new CustomEvent("progress:update"));
-    return { ok: true };
-  } catch (e: any) {
-    // Fallback local em erros inesperados
-    saveLocalProgressEntry(payload);
-    window.dispatchEvent(new CustomEvent("progress:update"));
-    return { error: e?.message || String(e), local: true };
-  }
-}
-
-// Obtém progresso agregado (percentual e contagens)
-export async function getProgressSummary(): Promise<ProgressSummary> {
-  try {
-    const { user } = await getUser();
-    const supabase = supabaseClient();
-
+    const completedCount = uniqueEntries.length;
     const totalCount = TOTAL_FREQUENCIES;
+    const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-    let remoteEntries: any[] = [];
-    if (user) {
-      const { data: entries, error: entriesError } = await supabase
-        .from("progress_entries")
-        .select("frequency_id,status")
-        .eq("user_id", user.id);
-      if (!entriesError) remoteEntries = (entries as any[]) || [];
-    }
-    const localEntries = getLocalProgressEntries();
-
-    if (user) {
-      const completedOnly = remoteEntries.filter((e) => e?.status === "COMPLETED");
-      const sessionsCount = completedOnly.length;
-      const completedCount = Math.min(sessionsCount, totalCount);
-      const percentage = Math.min(100, sessionsCount * PERCENT_PER_FREQUENCY);
-
-      const { data: freqRows, error: freqErr } = await supabase
-        .from("frequencies")
-        .select("id,unlock_day,order_in_day");
-      const idToDay = new Map<number, number>();
-      if (!freqErr) {
-        for (const r of (freqRows as any[]) || []) idToDay.set(r.id, r.unlock_day);
-      }
-
-      const byDay: Array<{ day: number; completed: number; total: number }> = [];
-      for (let day = 1; day <= 7; day++) {
-        const total = frequencies.filter((f) => f.unlockDay === day).length;
-        const completed = completedOnly.reduce((acc, e) => acc + (idToDay.get(e.frequency_id) === day ? 1 : 0), 0);
-        byDay.push({ day, completed, total });
-      }
-
-      return { percentage, completedCount, sessionsCount, totalCount, byDay };
-    }
-
-    // Usuária não autenticada: usar apenas progresso local
-    const completedOnlyLocal = localEntries.filter((e) => e?.status === "COMPLETED");
-    const sessionsCountLocal = completedOnlyLocal.length;
-    const completedCountLocal = Math.min(sessionsCountLocal, totalCount);
-    const percentageLocal = Math.min(100, sessionsCountLocal * PERCENT_PER_FREQUENCY);
-
-    const byDayLocal: Array<{ day: number; completed: number; total: number }> = [];
-    for (let day = 1; day <= 7; day++) {
-      const todays = frequencies.filter((f) => f.unlockDay === day);
-      const total = todays.length;
-      const completed = todays.filter((f) => completedOnlyLocal.some((e) => String(e.frequency_id) === String(f.id))).length;
-      byDayLocal.push({ day, completed, total });
-    }
+    // Agrupa por dia
+    const byDay: Record<number, number> = {};
+    uniqueEntries.forEach(entry => {
+      const day = entry.day;
+      byDay[day] = (byDay[day] || 0) + 1;
+    });
 
     return {
-      percentage: percentageLocal,
-      completedCount: completedCountLocal,
-      sessionsCount: sessionsCountLocal,
+      completedCount,
       totalCount,
-      byDay: byDayLocal,
+      percentage,
+      byDay,
     };
-  } catch (e: any) {
-    console.warn("[progress] getProgressSummary error:", e?.message || e);
-    return { percentage: 0, completedCount: 0, sessionsCount: 0, totalCount: TOTAL_FREQUENCIES, byDay: [], error: e?.message || String(e) };
+  } catch (error) {
+    console.error("[getProgressSummary] Erro:", error);
+    return {
+      completedCount: 0,
+      totalCount: TOTAL_FREQUENCIES,
+      percentage: 0,
+      byDay: {},
+    };
   }
-}
+};
+
+// Atualiza progresso na entrada (usado para desbloqueios)
+export const updateProgressOnEntry = async () => {
+  try {
+    const summary = await getProgressSummary();
+    
+    // Calcula dia atual baseado no progresso
+    const currentDay = Math.min(7, Math.max(1, Object.keys(summary.byDay).length + 1));
+    
+    return { currentDay, error: null };
+  } catch (error) {
+    console.error("[updateProgressOnEntry] Erro:", error);
+    return { currentDay: 1, error };
+  }
+};
 
 // Lista entradas de progresso do usuário (para Profile)
 export async function getMyProgress(): Promise<{ data: any[] | null; error: any }> {
@@ -293,9 +148,16 @@ export async function getMyProgress(): Promise<{ data: any[] | null; error: any 
       .from("progress_entries")
       .select("*")
       .eq("user_id", user.id)
-      .order("listened_at", { ascending: false });
+      .order("completed_at", { ascending: false });
     return { data: (data as any[]) || [], error };
   } catch (e: any) {
     return { data: null, error: e };
   }
+}
+
+// Limpa progresso local
+export function clearLocalProgress() {
+  try {
+    localStorage.removeItem("progress_entries");
+  } catch {}
 }

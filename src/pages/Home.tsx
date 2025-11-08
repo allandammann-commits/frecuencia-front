@@ -1,14 +1,13 @@
 import { Bell, Sparkles, Headphones, BookOpen, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+// import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { getTodayFrequencies } from "@/data/frequencies";
 import { useEffect, useMemo, useState } from "react";
-import { updateProgressOnEntry } from "@/lib/userProgress";
+import { updateProgressOnEntry, getProgressSummary } from "@/lib/progress";
 import { getUser } from "@/lib/auth";
 import { toast } from "sonner";
-import { getProgressSummary } from "@/lib/progress";
 
 const PROGRAM_TOTAL_DAYS = 7;
 
@@ -36,30 +35,37 @@ const Home = () => {
 
     // Carrega nome do usuário (se disponível)
     (async () => {
+      const storedName = localStorage.getItem("user_name") || "";
+      if (storedName) {
+        setUserName(storedName);
+        return;
+      }
       const { user } = await getUser();
       if (user) {
         const name = (user.user_metadata as any)?.name || user.email || "";
         setUserName(name);
       }
     })();
+  }, []);
 
-    // Carrega resumo de progresso (0% inicial; atualiza em eventos)
-    let mounted = true;
-    const loadSummary = async () => {
-      const { percentage, completedCount, totalCount, error } = await getProgressSummary();
-      if (error) console.warn("[Home] getProgressSummary error:", error);
-      if (mounted) {
-        setSummaryPct(percentage || 0);
-        setSummaryCounts({ completed: completedCount || 0, total: totalCount || 0 });
-      }
+  // Carrega resumo de progresso (0% inicial; atualiza em eventos)
+  useEffect(() => {
+    const loadProgress = async () => {
+      console.log(`[DEBUG] Home - loading progress summary`);
+      const summary = await getProgressSummary();
+      console.log(`[DEBUG] Home - progress summary:`, summary);
+      setSummaryPct(summary.percentage);
+      setSummaryCounts({ completed: summary.completedCount, total: summary.totalCount });
     };
-    loadSummary();
-    const handler = () => loadSummary();
-    window.addEventListener("progress:update", handler as any);
-    return () => {
-      mounted = false;
-      window.removeEventListener("progress:update", handler as any);
+    loadProgress();
+
+    const handleProgressUpdate = () => {
+      console.log(`[DEBUG] Home - progress:update event received`);
+      loadProgress();
     };
+
+    window.addEventListener("progress:update", handleProgressUpdate);
+    return () => window.removeEventListener("progress:update", handleProgressUpdate);
   }, []);
 
   const totalDays = PROGRAM_TOTAL_DAYS;
@@ -83,29 +89,7 @@ const Home = () => {
         </button>
       </header>
 
-      {/* Progress Card */}
-      <div className="glass-card rounded-2xl p-6 mb-6 animate-slide-up shadow-lg">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="font-display text-2xl font-bold mb-1">Tu Progreso</h2>
-            <p className="text-muted-foreground">Día {currentDay} de {totalDays}</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold gradient-text">{Math.round(progressPercentage)}%</div>
-            <p className="text-xs text-muted-foreground">Completado</p>
-          </div>
-        </div>
-        
-        <Progress value={progressPercentage} className="h-3 mb-2" />
-        <div className="text-xs text-muted-foreground mb-2">
-          Frecuencias completadas {summaryCounts.completed} de {summaryCounts.total}
-        </div>
-        
-        <div className="flex items-center gap-2 text-sm text-primary-light">
-          <Sparkles size={16} />
-          <span>¡Vas increíble! Sigue así para ver resultados en {totalDays} días</span>
-        </div>
-      </div>
+      {/* Progress Card removido temporariamente */}
 
       {/* Today's Frequencies */}
       <div className="mb-6">
@@ -168,11 +152,10 @@ const Home = () => {
               </div>
             ))
           ) : (
-            <div className="glass-card rounded-xl p-6 text-center">
-              <Lock size={48} className="text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                Completa tareas para desbloquear más frecuencias
-              </p>
+            <div className="glass-card rounded-xl p-6 text-center space-y-3">
+              <p className="text-muted-foreground">Aún no hay nuevas frecuencias hoy.</p>
+              <p className="text-sm">Explora todas en la sección de Frecuencias.</p>
+              <Button onClick={() => navigate("/frequencies")} className="w-full">Ir a Frecuencias</Button>
             </div>
           )}
         </div>
@@ -243,12 +226,12 @@ const Home = () => {
         </button>
         
         <button
-          onClick={() => navigate("/progress")}
+          onClick={() => navigate("/bonus")}
           className="glass-card rounded-xl p-4 hover-scale text-left"
         >
           <Sparkles size={32} className="text-primary mb-2" />
-          <h3 className="font-semibold mb-1">Mi Progreso</h3>
-          <p className="text-xs text-muted-foreground">Ver estadísticas</p>
+          <h3 className="font-semibold mb-1">Bonos</h3>
+          <p className="text-xs text-muted-foreground">Accede a materiales extra</p>
         </button>
       </div>
     </div>
