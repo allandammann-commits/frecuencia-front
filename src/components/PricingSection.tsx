@@ -8,7 +8,7 @@ export const PricingSection = () => {
   const formattedDate = format(new Date(), "dd/MM/yyyy");
   const essentialFeatures = ["✅ Frecuencia del Reencuentro (Audio principal para atraer a tu ex de vuelta)", "✅ Frecuencia de la Reconciliación (Para sanar heridas y resentimientos del pasado)", "✅ Guía Rápida de Uso (Instrucciones claras para activar la frecuencia)", "🎁 BONUS: Guía \"Cómo Hacer que Él Te Note en Instagram\""];
   const premiumFeatures = ["✅ Frecuencia del Reencuentro (Audio principal para atraer a tu ex de vuelta)", "✅ Frecuencia de la Reconciliación (Para sanar heridas y resentimientos del pasado)", "✅ Guía Rápida de Uso (Instrucciones claras para activar la frecuencia)", "🎁 BONUS: Guía \"Cómo Hacer que Él Te Note en Instagram\"", "✅ Frecuencia de la Pasión Ardiente (Para intensificar su deseo por ti)", "✅ Frecuencia Anti-Rival (Para eliminar cualquier competencia)", "✅ Frecuencia del Encantamiento (Él solo tendrá ojos para ti)", "✅ Frecuencia de la Protección Amorosa (Blindar relación contra crisis)", "✅ BONUS: Guía \"7 Frases que Hacen que Cualquier Hombre Suplique por Ti\"", "⭐ Acceso DE POR VIDA a la Aplicación Exclusiva con soporte VIP"];
-  return <section id="pricing" className="sm:py-16 md:py-20 px-4 bg-gradient-subtle py-[20px]">
+  return <section id="pricing" className="smartplayer-scroll-event sm:py-16 md:py-20 px-4 bg-gradient-subtle py-[20px]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
           <div className="inline-block glassmorphism bg-destructive/10 border border-destructive/20 rounded-lg px-6 py-3 mb-6 sm:mb-8 hover-lift animate-fade-in">

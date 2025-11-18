@@ -14,7 +14,7 @@ export const HeroSection = () => {
     s.async = true;
     document.head.appendChild(s);
 
-    const baseUrl = "https://scripts.converteai.net/efa74418-dd63-4378-8525-65c8b2f0ddc7/players/690979a95431bed16ae4f1d5/v4/embed.html";
+    const baseUrl = "https://scripts.converteai.net/513d0d74-d4e1-4eb2-92f1-a456e7ab85b9/players/691bc039fc1cf1aa2d26bcfa/v4/embed.html";
     const fullSrc = baseUrl + (window.location.search || "?") + "&vl=" + encodeURIComponent(window.location.href);
     setEmbedSrc(fullSrc);
   }, []);
@@ -55,13 +55,13 @@ export const HeroSection = () => {
         }}>La Única Frecuencia Sonora Binaural que Hace que tu Ex Suplique Volver en hasta 7 días</p>
 
           {embedSrc && (
-            <div id="ifr_690979a95431bed16ae4f1d5_wrapper" className="animate-fade-in" style={{ margin: "0 auto", width: "100%", maxWidth: 400 }}>
-              <div id="ifr_690979a95431bed16ae4f1d5_aspect" style={{ position: "relative", padding: "176.47058823529412% 0 0 0" }}>
+            <div id="ifr_691bc039fc1cf1aa2d26bcfa_wrapper" className="animate-fade-in" style={{ margin: "0 auto", width: "100%", maxWidth: 400 }}>
+              <div id="ifr_691bc039fc1cf1aa2d26bcfa_aspect" style={{ position: "relative", padding: "176.47058823529412% 0 0 0" }}>
                 <iframe
                   referrerPolicy="origin"
                   frameBorder={0}
                   allowFullScreen
-                  id="ifr_690979a95431bed16ae4f1d5"
+                  id="ifr_691bc039fc1cf1aa2d26bcfa"
                   src={embedSrc || "about:blank"}
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                 />
