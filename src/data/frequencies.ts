@@ -81,14 +81,15 @@ export const frequencies: Frequency[] = [
     title: "Frecuencia del Encantamiento",
     shortDescription: "Solo tenga ojos para ti",
     longDescription: "Crea un vínculo magnético único que lo hace verte como la única mujer en el mundo. La frecuencia 852Hz activa la intuición y despierta la visión espiritual. Las ondas Alpha inducen un estado de relajación y apertura emocional, haciéndolo vulnerable a tu energía encantadora.",
-    duration: "5 min",
+    duration: "7 min",
     specifications: "852Hz + Alpha 10Hz",
     accentColor: "hsl(330 81% 60%)", // rosado
     accentColorHex: "#EC4899",
     idealFor: "Mantener su atención exclusiva en ti",
     usageTip: "Escucha mientras te preparas o te arreglas, infundiendo esa energía en tu presencia.",
-    unlockDay: 7,
+    unlockDay: 1,
     isPremium: true,
+    audioSrc: "/frecuenciadelencantamiento.MP3",
   },
   {
     id: 6,
@@ -101,8 +102,9 @@ export const frequencies: Frequency[] = [
     accentColorHex: "#F59E0B",
     idealFor: "Una vez que hayan vuelto, para mantener la relación sólida",
     usageTip: "Escucha semanalmente como mantenimiento energético de la relación.",
-    unlockDay: 7,
+    unlockDay: 1,
     isPremium: true,
+    audioSrc: "/frecuenciaproteccion.MP3",
   },
 ];
 
