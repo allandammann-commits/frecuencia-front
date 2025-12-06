@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/logo.png";
+const logoUrl = "https://i.imgur.com/1eS0cCx.png";
 import { toast } from "sonner";
 
 const Welcome = () => {
@@ -23,7 +23,7 @@ const Welcome = () => {
   return (
     <div className="min-h-screen px-4 pt-10 pb-24 flex flex-col items-center">
       <div className="w-full max-w-md text-center">
-        <img src={logo} alt="Logo" className="w-20 h-20 mx-auto mb-4" />
+        <img src={logoUrl} alt="Logo" className="w-24 h-24 object-contain mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold gradient-text mb-2">Bienvenida</h1>
         <p className="text-muted-foreground mb-6">Ingresa tu nombre para entrar</p>
 

@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { frequencies } from "@/data/frequencies";
 import { recordProgress, updateProgressOnEntry } from "@/lib/progress";
 import { toast } from "sonner";
+import GuideMaster from "@/components/GuideMaster";
 
 const Frequencies = () => {
   const [playingId, setPlayingId] = useState<number | null>(null);
@@ -246,6 +247,10 @@ const Frequencies = () => {
           Escucha cada frecuencia al menos una vez al día. Para resultados óptimos, 
           encuentra un lugar tranquilo y usa audífonos de calidad.
         </p>
+      </div>
+
+      <div className="mt-6">
+        <GuideMaster />
       </div>
 
       {/* Frequency Details Dialog */}

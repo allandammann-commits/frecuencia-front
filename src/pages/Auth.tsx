@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import logo from "@/assets/logo.png";
+const logoUrl = "https://i.imgur.com/1eS0cCx.png";
 import { signIn, signUp } from "@/lib/auth";
 
 const Auth = () => {
@@ -98,9 +98,9 @@ const Auth = () => {
         {/* Logo */}
         <div className="text-center space-y-4">
           <img 
-            src={logo} 
+            src={logoUrl} 
             alt="Frecuencia del Reencuentro" 
-            className="w-48 h-auto mx-auto"
+            className="w-56 h-auto object-contain mx-auto"
           />
           <h1 className="font-display text-3xl font-bold gradient-text">
             Bienvenida a Frecuencia del Reencuentro

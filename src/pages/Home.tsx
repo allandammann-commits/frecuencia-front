@@ -2,8 +2,9 @@ import { Bell, Sparkles, Headphones, BookOpen, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/logo.png";
+const logoUrl = "https://i.imgur.com/1eS0cCx.png";
 import { getTodayFrequencies } from "@/data/frequencies";
+import GuideMaster from "@/components/GuideMaster";
 import { useEffect, useMemo, useState } from "react";
 import { updateProgressOnEntry, getProgressSummary } from "@/lib/progress";
 import { getUser } from "@/lib/auth";
@@ -77,7 +78,7 @@ const Home = () => {
       {/* Header */}
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Logo" className="w-12 h-12" />
+          <img src={logoUrl} alt="Logo" className="w-16 h-16 object-contain" />
           <div>
             <h2 className="font-display text-2xl font-bold gradient-text">{userName ? `Hola, ${userName}` : "Bienvenida"}</h2>
             <p className="text-sm text-muted-foreground">Día {currentDay} de tu transformación</p>
@@ -212,6 +213,10 @@ const Home = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <GuideMaster />
       </div>
 
       {/* Quick Actions */}
