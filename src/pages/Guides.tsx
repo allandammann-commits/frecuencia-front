@@ -120,13 +120,23 @@ const Guides = () => {
                 <p className="text-sm text-muted-foreground mb-1">
                   {guide.description}
                 </p>
-                <div className="text-xs text-muted-foreground">
-                  {guide.duration}
-                </div>
+              <div className="text-xs text-muted-foreground">
+                {guide.duration}
               </div>
+              {guide.unlocked && guide.path && (
+                <div className="mt-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigate(guide.path); }}
+                    className="px-4 py-2 bg-gradient-to-r from-primary to-accent rounded-full text-white font-semibold text-xs hover-scale"
+                  >
+                    Leer Ahora
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        ))}
+        </div>
+      ))}
       </div>
 
       {/* Tips Card */}
