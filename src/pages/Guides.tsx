@@ -1,6 +1,8 @@
 import { BookOpen, Lock, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Guides = () => {
+  const navigate = useNavigate();
   const guides = [
     {
       id: 1,
@@ -9,16 +11,8 @@ const Guides = () => {
       description: "Aprende a valorarte y reconocer tu poder interior antes de reconquistar",
       duration: "5 min lectura",
       unlocked: true,
-      completed: true,
-    },
-    {
-      id: 2,
-      day: 2,
-      title: "La Energía de la Atracción",
-      description: "Entiende cómo funciona la ley de atracción en las relaciones",
-      duration: "7 min lectura",
-      unlocked: true,
-      completed: true,
+      completed: false,
+      path: "/guides/reconociendo-valor",
     },
     {
       id: 3,
@@ -28,6 +22,7 @@ const Guides = () => {
       duration: "8 min lectura",
       unlocked: true,
       completed: false,
+      path: "/guides/sanando-heridas",
     },
     {
       id: 4,
@@ -35,8 +30,9 @@ const Guides = () => {
       title: "Conexión Energética",
       description: "Cómo crear y mantener un vínculo energético con tu persona amada",
       duration: "6 min lectura",
-      unlocked: false,
+      unlocked: true,
       completed: false,
+      path: "/guides/conexion-energetica",
     },
     {
       id: 5,
@@ -44,8 +40,9 @@ const Guides = () => {
       title: "Manifestación Consciente",
       description: "Técnicas avanzadas de visualización para el reencuentro",
       duration: "10 min lectura",
-      unlocked: false,
+      unlocked: true,
       completed: false,
+      path: "/guides/manifestacion-consciente",
     },
   ];
 
@@ -90,6 +87,7 @@ const Guides = () => {
               guide.unlocked ? "hover-scale cursor-pointer" : "opacity-60"
             }`}
             style={{ animationDelay: `${index * 100}ms` }}
+            onClick={() => guide.unlocked && guide.path && navigate(guide.path)}
           >
             <div className="flex items-center gap-4">
               {/* Day Badge */}

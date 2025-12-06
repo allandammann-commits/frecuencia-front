@@ -10,6 +10,9 @@ import Guides from "./pages/Guides";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import GuideSanando from "./pages/GuideSanando";
+import GuideValor from "./pages/GuideValor";
+import GuideConexion from "./pages/GuideConexion";
+import GuideManifestacion from "./pages/GuideManifestacion";
 import Welcome from "./pages/Welcome";
 import Bonus from "./pages/Bonus";
 
@@ -28,6 +31,9 @@ const App = () => (
             <Route path="/frequencies" element={<Frequencies />} />
             <Route path="/guides" element={<Guides />} />
             <Route path="/guides/sanando-heridas" element={<GuideSanando />} />
+            <Route path="/guides/reconociendo-valor" element={<GuideValor />} />
+            <Route path="/guides/conexion-energetica" element={<GuideConexion />} />
+            <Route path="/guides/manifestacion-consciente" element={<GuideManifestacion />} />
             <Route path="/bonus" element={<Bonus />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
