@@ -89,7 +89,7 @@ export const frequencies: Frequency[] = [
     usageTip: "Escucha mientras te preparas o te arreglas, infundiendo esa energía en tu presencia.",
     unlockDay: 1,
     isPremium: true,
-    audioSrc: "/frecuenciadelencantamiento.MP3",
+    audioSrc: "/frecuenciadelencantamiento.mp3",
   },
   {
     id: 6,
@@ -104,7 +104,7 @@ export const frequencies: Frequency[] = [
     usageTip: "Escucha semanalmente como mantenimiento energético de la relación.",
     unlockDay: 1,
     isPremium: true,
-    audioSrc: "/frecuenciaproteccion.MP3",
+    audioSrc: "/frecuenciaproteccion.mp3",
   },
 ];
 
