@@ -50,6 +50,7 @@ export const PricingSection = () => {
                 <p className="text-sm text-muted-foreground mb-2">por solo</p>
                 <span className="text-2xl sm:text-3xl font-bold text-primary">$ 9,90</span>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Este valor será convertido a tu moneda local.</p>
+                <p className="text-xs sm:text-sm text-primary font-semibold mt-1">Un solo pago, sin mensualidades. Acceso de por vida.</p>
               </div>
               
               <a href="https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10" target="_blank" rel="noopener noreferrer">
@@ -82,6 +83,7 @@ export const PricingSection = () => {
               <p className="text-sm text-muted-foreground mb-2">por solo</p>
               <span className="text-2xl sm:text-3xl font-bold text-primary">$ 4,90</span>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Este valor será convertido a tu moneda local.</p>
+              <p className="text-xs sm:text-sm text-primary font-semibold mt-1">Un solo pago, sin mensualidades. Acceso de por vida.</p>
             </div>
             
             <a href="https://pay.hotmart.com/W99845697O?off=vr76jf4s&checkoutMode=10" target="_blank" rel="noopener noreferrer">
