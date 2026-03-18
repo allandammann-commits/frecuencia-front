@@ -11,22 +11,19 @@ export const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
   ];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setStep((prev) => {
-        if (prev < steps.length - 1) {
-          return prev + 1;
-        }
-        clearInterval(timer);
-        // Garante que o onComplete seja chamado
-        const finalTimeout = setTimeout(() => {
-          onComplete();
-        }, 1000);
-        return prev;
-      });
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep++;
+      if (currentStep < steps.length) {
+        setStep(currentStep);
+      } else {
+        clearInterval(interval);
+        onComplete(); // Chama a função de conclusão imediatamente após o último passo
+      }
     }, 1200);
 
-    return () => clearInterval(timer);
-  }, [onComplete, steps.length]);
+    return () => clearInterval(interval);
+  }, [onComplete]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
@@ -47,7 +44,7 @@ export const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="text-xl font-medium text-white text-center"
+          className="text-xl font-medium text-foreground text-center"
         >
           {steps[step]}
         </motion.p>

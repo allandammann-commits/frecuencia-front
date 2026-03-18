@@ -13,7 +13,7 @@ export const VibrationalSection = () => {
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-12 space-y-4">
           <p className="text-primary font-black text-2xl sm:text-3xl animate-pulse uppercase tracking-widest italic">ESCUCHA SOLO 5 MINUTOS AL DÍA</p>
-          <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tighter italic">
+          <h2 className="text-2xl sm:text-4xl font-black text-foreground uppercase tracking-tighter italic">
             REPROGRAMA TU ENERGÍA MAGNÉTICA PARA RECONQUISTAR A CUALQUIER HOMBRE
           </h2>
           <p className="max-w-2xl mx-auto text-lg text-muted-foreground">

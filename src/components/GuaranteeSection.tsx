@@ -13,7 +13,7 @@ export const GuaranteeSection = () => {
       <div className="max-w-4xl mx-auto text-center relative z-10">
         <div className="mb-8 sm:mb-12 animate-fade-in">
           
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 px-2 leading-tight animate-slide-up uppercase tracking-tighter italic">🛡️ GARANTÍA BLINDADA DE 30 DÍAS</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-4 px-2 leading-tight animate-slide-up uppercase tracking-tighter italic">🛡️ GARANTÍA BLINDADA DE 30 DÍAS</h2>
           <p className="text-lg sm:text-2xl text-primary font-black px-2 animate-slide-up uppercase italic tracking-widest" style={{
           animationDelay: '0.2s'
         }}>
@@ -21,15 +21,15 @@ export const GuaranteeSection = () => {
           </p>
         </div>
         
-        <div className="bg-card/50 backdrop-blur-sm shadow-elegant border border-white/5 rounded-[2.5rem] p-6 sm:p-10 mb-6 sm:mb-8 hover-lift animate-scale-in" style={{
+        <div className="bg-card shadow-elegant border border-border rounded-[2.5rem] p-6 sm:p-10 mb-6 sm:mb-8 hover-lift animate-scale-in" style={{
         animationDelay: '0.4s'
       }}>
-          <p className="text-lg sm:text-xl text-white mb-8 px-2 leading-relaxed font-medium">Estoy tan segura del poder transformador de la <span className="text-primary font-black italic underline">Frecuencia Límbica</span> que ofrezco una garantía incondicional de 30 días.</p>
+          <p className="text-lg sm:text-xl text-foreground mb-8 px-2 leading-relaxed font-medium">Estoy tan segura del poder transformador de la <span className="text-primary font-black italic underline">Frecuencia Límbica</span> que ofrezco una garantia incondicional de 30 días.</p>
           
-          <div className="space-y-4 mb-8 text-left max-w-lg mx-auto bg-black/40 p-8 rounded-3xl border border-white/10 shadow-soft">
-            <p className="text-white font-black text-base sm:text-lg uppercase tracking-widest border-b border-white/10 pb-3">Si en hasta 30 días:</p>
+          <div className="space-y-4 mb-8 text-left max-w-lg mx-auto bg-muted p-8 rounded-3xl border border-border shadow-soft">
+            <p className="text-foreground font-black text-base sm:text-lg uppercase tracking-widest border-b border-border pb-3">Si en hasta 30 días:</p>
             <ul className="space-y-4 pt-4">
-              {guaranteePoints.map((point, index) => <li key={index} className="text-gray-300 flex items-start text-base sm:text-lg font-medium">
+              {guaranteePoints.map((point, index) => <li key={index} className="text-foreground/70 flex items-start text-base sm:text-lg font-medium">
                   <span className="text-primary mr-3 font-black text-xl italic">»</span>
                   {point}
                 </li>)}
@@ -43,7 +43,7 @@ export const GuaranteeSection = () => {
           </div>
         </div>
         
-        <p className="text-xl sm:text-2xl text-white font-black mb-2 px-2 uppercase tracking-tighter italic">
+        <p className="text-xl sm:text-2xl text-foreground font-black mb-2 px-2 uppercase tracking-tighter italic">
           El riesgo es todo mío. Tú solo tienes que ganar el amor de tu vida de vuelta.
         </p>
       </div>

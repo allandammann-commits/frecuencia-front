@@ -164,7 +164,7 @@ export const Quiz = ({ onComplete }: QuizProps) => {
           )}
 
           <h2 
-            className="text-2xl sm:text-3xl font-bold leading-tight text-center"
+            className="text-2xl sm:text-3xl font-bold leading-tight text-center text-foreground"
             dangerouslySetInnerHTML={{ __html: stepData.question }}
           />
 
@@ -174,7 +174,7 @@ export const Quiz = ({ onComplete }: QuizProps) => {
                 key={index}
                 variant="outline"
                 onClick={() => handleOptionClick(option.value)}
-                className="py-6 text-left justify-start px-6 text-lg border-border hover:border-primary hover:bg-primary/5 transition-all rounded-2xl bg-card/50 backdrop-blur-sm"
+                className="py-6 text-left justify-start px-6 text-lg border-border hover:border-primary hover:bg-primary/10 transition-all rounded-2xl bg-white shadow-soft text-foreground"
               >
                 <span className="mr-3">{option.text.split(' ')[0]}</span>
                 <span>{option.text.split(' ').slice(1).join(' ')}</span>
