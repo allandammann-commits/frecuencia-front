@@ -14,26 +14,26 @@ export const TestimonialsSection = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-12 sm:py-16 md:py-20 px-4 bg-gradient-subtle">
+    <section id="testimonials" className="py-12 sm:py-16 md:py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center text-foreground mb-6 sm:mb-8 px-2 animate-fade-in">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-center text-white mb-12 sm:mb-16 px-2 animate-fade-in uppercase tracking-tighter italic">
           ELLAS RECONQUISTARON A SU EX EN MENOS DE 7 DÍAS
         </h2>
         
-        
-        
-        <div className="flex flex-col gap-6 sm:gap-8 items-center">
+        <div className="flex flex-col gap-10 sm:gap-12 items-center">
           {testimonialImages.map((image, index) => (
             <div 
               key={index} 
-              className="w-full max-w-4xl animate-fade-in"
+              className="w-full max-w-2xl animate-fade-in"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <img 
-                src={image} 
-                alt={`Testimonio ${index + 1}`}
-                className="w-full h-auto rounded-lg border-4 border-pink-500 shadow-card hover-lift"
-              />
+              <div className="relative p-1 bg-gradient-to-br from-primary to-accent rounded-3xl shadow-card hover-lift transition-all">
+                <img 
+                  src={image} 
+                  alt={`Testimonio ${index + 1}`}
+                  className="w-full h-auto rounded-[1.4rem] border-2 border-white/10"
+                />
+              </div>
             </div>
           ))}
         </div>

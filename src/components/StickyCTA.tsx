@@ -15,12 +15,12 @@ export const StickyCTA = () => {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1rem)] sm:w-auto">
-      <div className="bg-[#0d0b1f]/95 backdrop-blur-xl shadow-[0_0_20px_rgba(255,45,155,0.2)] border border-[#ff2d9b]/30 rounded-full px-4 py-3 flex items-center gap-4">
-        <span className="text-xs sm:text-sm text-white font-black uppercase tracking-tighter hidden sm:inline">
+      <div className="bg-card/90 backdrop-blur-xl shadow-glow border border-primary/30 rounded-full px-4 py-3 flex items-center gap-4">
+        <span className="text-xs sm:text-sm text-white font-black uppercase tracking-tighter hidden sm:inline italic">
           ¿Lista para reconquistarlo?
         </span>
         <Button
-          className="bg-[#ff2d9b] hover:bg-[#e91e8c] text-white text-xs sm:text-sm px-6 py-6 font-black uppercase tracking-widest rounded-full shadow-lg transition-all"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm px-8 py-6 font-black uppercase tracking-widest rounded-full shadow-lg transition-all italic"
           onClick={scrollToPricing}
         >
           ELIGE TU PLAN

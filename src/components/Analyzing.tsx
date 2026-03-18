@@ -17,13 +17,16 @@ export const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
           return prev + 1;
         }
         clearInterval(timer);
-        setTimeout(onComplete, 1000);
+        // Garante que o onComplete seja chamado
+        const finalTimeout = setTimeout(() => {
+          onComplete();
+        }, 1000);
         return prev;
       });
     }, 1200);
 
     return () => clearInterval(timer);
-  }, [onComplete]);
+  }, [onComplete, steps.length]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-8">
@@ -31,10 +34,10 @@ export const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-full h-full rounded-full border-4 border-t-[#ff2d9b] border-r-transparent border-b-transparent border-l-transparent"
+          className="w-full h-full rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-[#ff2d9b]/20 animate-pulse" />
+          <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
         </div>
       </div>
       

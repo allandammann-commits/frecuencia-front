@@ -32,11 +32,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white pt-12 relative overflow-hidden">
+    <div className="min-h-screen bg-background text-white relative overflow-hidden">
       {/* Background Particles/Glow Effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ff2d9b]/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#ff2d9b]/10 rounded-full blur-[100px]" />
+      <div className="absolute inset-0 pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px]" />
       </div>
 
       <TopNoticeBar />

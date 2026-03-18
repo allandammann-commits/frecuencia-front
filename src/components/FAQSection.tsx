@@ -36,32 +36,32 @@ export const FAQSection = () => {
   };
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 px-4 bg-[#0a0a1a]">
+    <section className="py-12 sm:py-16 md:py-20 px-4 bg-background">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white mb-12 sm:mb-16 px-2 animate-fade-in uppercase tracking-tighter">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-center text-white mb-12 sm:mb-16 px-2 animate-fade-in uppercase tracking-tighter italic">
           ❓ PREGUNTAS FRECUENTES
         </h2>
         
         <div className="space-y-4 sm:space-y-6">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-[#0d0b1f] border border-white/5 shadow-soft rounded-2xl overflow-hidden hover-lift animate-slide-up" style={{animationDelay: `${index * 0.1}s`}}>
+            <div key={index} className="bg-card/50 backdrop-blur-sm border border-white/5 shadow-soft rounded-3xl overflow-hidden hover-lift animate-slide-up" style={{animationDelay: `${index * 0.1}s`}}>
               <button
                 onClick={() => toggleFAQ(index)}
                 className="w-full p-6 sm:p-8 text-left flex justify-between items-center hover:bg-white/5 transition-all"
               >
-                <h3 className="text-lg sm:text-xl font-bold text-white pr-4 sm:pr-6">
+                <h3 className="text-lg sm:text-xl font-black text-white pr-4 sm:pr-6 uppercase tracking-tight italic">
                   {faq.question}
                 </h3>
                 {openIndex === index ? (
-                  <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff2d9b] flex-shrink-0" />
+                  <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff2d9b] flex-shrink-0" />
+                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
                 )}
               </button>
               
               {openIndex === index && (
                 <div className="px-6 sm:px-8 pb-6 sm:pb-8 border-t border-white/5 pt-6">
-                  <p className="text-gray-400 text-base sm:text-lg leading-relaxed">
+                  <p className="text-gray-400 text-base sm:text-lg leading-relaxed font-medium">
                     {faq.answer}
                   </p>
                 </div>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import draImage from "@/assets/woman-headphones-final.png"; // Usando imagem disponível como placeholder para a Dra.
 
 interface QuizProps {
   onComplete: (answers: Record<string, string>) => void;
@@ -14,7 +15,8 @@ const steps = [
     options: [
       { text: "❤️ Sí, algo dentro de mí lo sabe.", value: "si" },
       { text: "🤔 No estoy segura, pero quiero descubrirlo.", value: "no_segura" }
-    ]
+    ],
+    showDra: true
   },
   {
     id: 2,
@@ -62,7 +64,7 @@ const steps = [
     id: 6,
     question: "¿Qué fue lo primeiro que hiciste después de la ruptura?",
     options: [
-      { text: "📲 Le mandé muchos mensajes o lo llamé.", value: "mensajes" },
+      { text: "📲 Le mandé muitos mensajes o lo llamé.", value: "mensajes" },
       { text: "🔍 Lo busqué en redes sociales sin parar.", value: "busqueda" },
       { text: "🧊 Lo ignoré para ver si reaccionaba.", value: "ignorado" },
       { text: "🤐 Me paralicé… no supe qué hacer.", value: "paralizada" },
@@ -71,7 +73,7 @@ const steps = [
   },
   {
     id: 7,
-    question: "¿Cuál de estas frases describe mejor lo que sientes <span class=\"text-[#ff2d9b] font-bold\">HOY</span>?",
+    question: "¿Cuál de estas frases describe mejor lo que sientes <span class=\"text-primary font-bold\">HOY</span>?",
     options: [
       { text: "🔥 Pienso en él todo el día. No puedo concentrarme en nada.", value: "pienso_todo_dia" },
       { text: "😩 Siento que el tiempo se acaba y él me está olvidando.", value: "olvidando" },
@@ -109,7 +111,7 @@ const steps = [
 ];
 
 export const Quiz = ({ onComplete }: QuizProps) => {
-  const [currentStep, setCurrentStep] = useState(0); // 0 is initial screen, 1-10 are quiz steps
+  const [currentStep, setCurrentStep] = useState(1); // Start directly at step 1
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
   const handleOptionClick = (value: string) => {
@@ -119,73 +121,67 @@ export const Quiz = ({ onComplete }: QuizProps) => {
     if (currentStep < 10) {
       setCurrentStep(currentStep + 1);
     } else {
-      onComplete(nextAnswers);
+      // Small delay to feel the click before transition
+      setTimeout(() => onComplete(nextAnswers), 300);
     }
   };
 
-  const startQuiz = () => {
-    setCurrentStep(1);
-  };
+  const stepData = steps[currentStep - 1];
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8 min-h-[600px] flex flex-col justify-center">
       <AnimatePresence mode="wait">
-        {currentStep === 0 ? (
-          <motion.div
-            key="start"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="text-center space-y-8"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-              ¿Tu ex realmente te olvidó… o su cerebro simplemente <span className="text-[#ff2d9b]">BLOQUEÓ</span> lo que siente por ti?
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Responde estas 10 preguntas y descubre si aún puedes reactivar su conexión emocional contigo — según la neurociencia.
-            </p>
-            <Button
-              onClick={startQuiz}
-              className="w-full py-8 text-xl font-bold bg-[#ff2d9b] hover:bg-[#e91e8c] text-white shadow-[0_0_15px_rgba(255,45,155,0.4)] transition-all duration-300 transform hover:scale-105 rounded-xl"
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          className="space-y-8"
+        >
+          <div className="space-y-4">
+            <div className="flex justify-between items-center text-sm font-medium text-primary">
+              <span>Paso {currentStep} de 10</span>
+              <span>{Math.round((currentStep / 10) * 100)}%</span>
+            </div>
+            <Progress value={(currentStep / 10) * 100} className="h-2 bg-muted" />
+          </div>
+
+          {stepData.showDra && (
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex justify-center mb-6"
             >
-              QUIERO DESCUBRIRLO AHORA
-            </Button>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-8"
-          >
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-sm font-medium text-[#ff2d9b]">
-                <span>Paso {currentStep} de 10</span>
-                <span>{Math.round((currentStep / 10) * 100)}%</span>
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                <img 
+                  src={draImage} 
+                  alt="Dra." 
+                  className="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-full border-4 border-primary/30 relative z-10 shadow-2xl"
+                />
               </div>
-              <Progress value={(currentStep / 10) * 100} className="h-2 bg-gray-800" />
-            </div>
+            </motion.div>
+          )}
 
-            <h2 
-              className="text-2xl sm:text-3xl font-bold leading-tight text-center"
-              dangerouslySetInnerHTML={{ __html: steps[currentStep - 1].question }}
-            />
+          <h2 
+            className="text-2xl sm:text-3xl font-bold leading-tight text-center"
+            dangerouslySetInnerHTML={{ __html: stepData.question }}
+          />
 
-            <div className="grid gap-4">
-              {steps[currentStep - 1].options.map((option, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  onClick={() => handleOptionClick(option.value)}
-                  className="py-6 text-left justify-start px-6 text-lg border-gray-700 hover:border-[#ff2d9b] hover:bg-[#ff2d9b]/10 transition-all rounded-xl"
-                >
-                  {option.text}
-                </Button>
-              ))}
-            </div>
-          </motion.div>
-        )}
+          <div className="grid gap-4">
+            {stepData.options.map((option, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                onClick={() => handleOptionClick(option.value)}
+                className="py-6 text-left justify-start px-6 text-lg border-border hover:border-primary hover:bg-primary/5 transition-all rounded-2xl bg-card/50 backdrop-blur-sm"
+              >
+                <span className="mr-3">{option.text.split(' ')[0]}</span>
+                <span>{option.text.split(' ').slice(1).join(' ')}</span>
+              </Button>
+            ))}
+          </div>
+        </motion.div>
       </AnimatePresence>
     </div>
   );
