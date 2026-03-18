@@ -16,31 +16,31 @@ export const WarningSection = () => {
       </div>
       
       <div className="max-w-3xl mx-auto relative z-10">
-        <div className="glassmorphism bg-destructive/10 border border-destructive/20 rounded-lg p-4 sm:p-6 lg:p-8 text-center shadow-elegant hover-lift animate-scale-in">
-          <div className="p-4 glassmorphism rounded-full w-fit mx-auto mb-4 sm:mb-6 animate-pulse-glow">
-            <AlertTriangle className="w-10 h-10 sm:w-12 sm:h-12 text-destructive" />
+        <div className="glassmorphism bg-[#ff2d9b]/5 border-[#ff2d9b]/20 rounded-3xl p-6 sm:p-10 text-center shadow-elegant hover-lift animate-scale-in">
+          <div className="p-4 bg-[#ff2d9b]/20 rounded-full w-fit mx-auto mb-4 sm:mb-6 animate-pulse">
+            <AlertTriangle className="w-10 h-10 sm:w-12 sm:h-12 text-[#ff2d9b]" />
           </div>
           
-          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6 px-2 animate-slide-up">
+          <h3 className="text-2xl sm:text-3xl font-black text-white mb-4 sm:mb-6 px-2 animate-slide-up uppercase tracking-tighter">
             ⚠️ AVISO IMPORTANTE
           </h3>
           
-          <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base px-2 animate-fade-in" style={{animationDelay: '0.2s'}}>
+          <p className="text-gray-300 mb-8 text-base sm:text-lg px-2 animate-fade-in leading-relaxed" style={{animationDelay: '0.2s'}}>
             Esta frecuencia está basada en investigaciones científicas sobre ondas cerebrales y neuroplasticidad. Actúa en niveles profundos de la mente y puede generar resultados intensos.
           </p>
           
-          <div className="mb-4 sm:mb-6 glassmorphism p-4 rounded-lg shadow-soft animate-slide-up" style={{animationDelay: '0.4s'}}>
-            <p className="text-foreground font-bold mb-3 sm:mb-4 text-sm sm:text-base px-2">NO recomendamos para:</p>
-            <ul className="space-y-1 sm:space-y-2 px-2">
+          <div className="mb-8 glassmorphism bg-black/40 border border-white/10 p-6 rounded-2xl shadow-soft animate-slide-up" style={{animationDelay: '0.4s'}}>
+            <p className="text-[#ff2d9b] font-black mb-4 text-base sm:text-lg px-2 uppercase tracking-widest">NO recomendamos para:</p>
+            <ul className="space-y-2 px-2 text-left max-w-md mx-auto">
               {warnings.map((warning, index) => (
-                <li key={index} className="text-white text-sm sm:text-base">
-                  • {warning}
+                <li key={index} className="text-white text-base sm:text-lg flex items-center gap-3">
+                  <span className="text-[#ff2d9b] font-bold">•</span> {warning}
                 </li>
               ))}
             </ul>
           </div>
           
-          <p className="text-foreground font-bold text-sm sm:text-base px-2 mt-2">
+          <p className="text-white font-black text-lg sm:text-xl px-2 mt-2 uppercase italic tracking-tight animate-pulse">
             ⚠️ Usa con responsabilidad.
           </p>
         </div>

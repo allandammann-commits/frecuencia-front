@@ -47,10 +47,10 @@ export const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in mt-6 sm:mt-8 mb-0">
         <div className="mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gradient mb-6 sm:mb-8 leading-tight px-2 animate-slide-up drop-shadow-lg">
-            FRECUENCIA DEL REENCUENTRO
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#ff2d9b] mb-6 sm:mb-8 leading-tight px-2 animate-slide-up drop-shadow-[0_0_15px_rgba(255,45,155,0.4)]">
+            FRECUENCIA LÍMBICA
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 px-2 animate-slide-up" style={{
+          <p className="text-base sm:text-lg md:text-xl text-white mb-6 sm:mb-8 px-2 animate-slide-up" style={{
           animationDelay: '0.2s'
         }}>La Única Frecuencia Sonora Binaural que Hace que tu Ex Suplique Volver en hasta 7 días</p>
 

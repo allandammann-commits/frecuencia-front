@@ -13,43 +13,43 @@ export const StorySection = () => {
       
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient mb-4 sm:mb-6 leading-tight px-2 mt-2 sm:mt-3 drop-shadow-lg">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2 mt-2 sm:mt-3 drop-shadow-lg uppercase">
             SÉ EXACTAMENTE CÓMO TE SIENTES... PORQUE YO YA ESTUVE EN TU LUGAR
           </h2>
           <div className="mb-4 sm:mb-6">
-            <img src={storyImage} alt="Ilustración de la transformación" className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto mx-auto hover-lift animate-float shadow-elegant" />
+            <img src={storyImage} alt="Ilustración de la transformación" className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto mx-auto hover-lift animate-float shadow-elegant opacity-50 grayscale hover:grayscale-0 transition-all" />
           </div>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
           <div className="space-y-6 sm:space-y-8">
-            <p className="text-base sm:text-lg text-muted-foreground px-2">
-              Veía a otras mujeres siendo tratadas como reinas, recibiendo flores, cenas románticas, declaraciones... ¿Y yo? Revisando WhatsApp cada 5 minutos, stalkeando sus redes sociales, fingiendo que estaba bien cuando por dentro estaba destrozada.
+            <p className="text-base sm:text-lg text-muted-foreground px-2 leading-relaxed">
+              Veía a otras mujeres siendo tratadas como reinas, recibiendo flores, cenas románticas, declaraciones... ¿Y yo? Revisando WhatsApp cada 5 minutos, stalkeando sus redes sociales, fingiendo que estaba bien quando por dentro estava destrozada.
             </p>
             
-            <div className="glassmorphism shadow-card border border-border rounded-lg p-6 sm:p-8 hover-lift animate-slide-up" style={{
+            <div className="glassmorphism shadow-card border-[#ff2d9b]/10 rounded-lg p-6 sm:p-8 hover-lift animate-slide-up" style={{
             animationDelay: '0.3s'
           }}>
-              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-[#ff2d9b] mb-4 sm:mb-6">
                 Las preguntas que me torturaban:
               </h3>
               <ul className="space-y-3 sm:space-y-4">
-                {painPoints.map((point, index) => <li key={index} className="text-muted-foreground text-sm sm:text-base">
-                    • {point}
+                {painPoints.map((point, index) => <li key={index} className="text-muted-foreground text-sm sm:text-base flex items-start gap-2">
+                    <span className="text-[#ff2d9b] mt-1">•</span> {point}
                   </li>)}
               </ul>
             </div>
             
-            <div className="glassmorphism bg-primary/10 border border-primary/20 rounded-lg p-6 sm:p-8 hover-glow animate-scale-in" style={{
+            <div className="glassmorphism bg-[#ff2d9b]/5 border-[#ff2d9b]/20 rounded-lg p-6 sm:p-8 hover-glow animate-scale-in" style={{
             animationDelay: '0.5s'
           }}>
-              <p className="text-foreground font-medium text-sm sm:text-base mb-4 sm:mb-6">
+              <p className="text-white font-medium text-sm sm:text-base mb-4 sm:mb-6">
                 La verdad dolorosa: Estaba vibrando en la frecuencia de la carencia, la desesperación, la baja autoestima. Y eso repelía a cualquier hombre.
               </p>
-              <p className="text-primary font-bold text-sm sm:text-base mb-3 sm:mb-4">
-                Hasta que descubrí esta FRECUENCIA DEL REENCUENTRO... y todo cambió en 48 horas.
+              <p className="text-[#ff2d9b] font-bold text-lg sm:text-xl mb-3 sm:mb-4 uppercase">
+                Hasta que descubrí esta FRECUENCIA LÍMBICA... y todo cambió en 48 horas.
               </p>
-              <p className="text-foreground text-sm sm:text-base">
+              <p className="text-white text-base sm:text-lg font-semibold italic">
                 Él me llamó llorando, pidiendo una segunda oportunidad.
               </p>
             </div>

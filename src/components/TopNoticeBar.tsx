@@ -47,8 +47,8 @@ export const TopNoticeBar = () => {
   const text = `Ya ayudamos a mujeres de ${city ?? "tu ciudad"}`;
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 bg-red-600 text-white shadow-elegant">
-      <div className="max-w-6xl mx-auto px-4 py-2 text-center text-sm sm:text-base font-semibold">
+    <div className="fixed top-0 inset-x-0 z-50 bg-[#ff2d9b] text-white shadow-[0_4px_15px_rgba(255,45,155,0.3)] border-b border-white/10">
+      <div className="max-w-6xl mx-auto px-4 py-2 text-center text-xs sm:text-sm font-black uppercase tracking-widest">
         {text}
       </div>
     </div>

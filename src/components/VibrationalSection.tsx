@@ -11,6 +11,16 @@ export const VibrationalSection = () => {
       </div>
       
       <div className="max-w-6xl mx-auto relative z-10">
+        <div className="text-center mb-12 space-y-4">
+          <p className="text-[#ff2d9b] font-bold text-2xl sm:text-3xl animate-pulse">ESCUCHA SOLO 5 MINUTOS AL DÍA</p>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white uppercase tracking-tight">
+            REPROGRAMA TU ENERGÍA MAGNÉTICA PARA RECONQUISTAR A CUALQUIER HOMBRE
+          </h2>
+          <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+            Esta frecuencia te da una ventaja psicológica devastadora. Basada en neurociencia y frecuencias binaurales, actúa directamente en el subconsciente masculino.
+          </p>
+        </div>
+        
         <div className="relative w-full max-w-4xl mx-auto">
           {/* Vibration rings */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

@@ -15,13 +15,12 @@ export const StickyCTA = () => {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1rem)] sm:w-auto">
-      <div className="glassmorphism shadow-card border border-primary/20 rounded-full px-3 py-3 sm:px-4 sm:py-3 flex items-center gap-3 sm:gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-        <span className="text-xs sm:text-sm text-foreground font-semibold px-2 hidden sm:inline">
-          ¿List@ para elegir tu plan?
+      <div className="bg-[#0d0b1f]/95 backdrop-blur-xl shadow-[0_0_20px_rgba(255,45,155,0.2)] border border-[#ff2d9b]/30 rounded-full px-4 py-3 flex items-center gap-4">
+        <span className="text-xs sm:text-sm text-white font-black uppercase tracking-tighter hidden sm:inline">
+          ¿Lista para reconquistarlo?
         </span>
         <Button
-          variant="hero"
-          className="text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-3"
+          className="bg-[#ff2d9b] hover:bg-[#e91e8c] text-white text-xs sm:text-sm px-6 py-6 font-black uppercase tracking-widest rounded-full shadow-lg transition-all"
           onClick={scrollToPricing}
         >
           ELIGE TU PLAN
@@ -29,10 +28,10 @@ export const StickyCTA = () => {
         </Button>
         <button
           aria-label="Cerrar"
-          className="ml-1 sm:ml-2 p-2 rounded-full hover:bg-muted/20"
+          className="ml-1 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
           onClick={() => setVisible(false)}
         >
-          <X className="w-4 h-4 text-muted-foreground" />
+          <X className="w-4 h-4 text-white/50" />
         </button>
       </div>
     </div>
