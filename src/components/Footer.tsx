@@ -1,36 +1,70 @@
+import { ShieldCheck } from 'lucide-react';
+
 export const Footer = () => {
-  return <footer className="sm:py-12 px-4 bg-background border-t border-white/5 relative overflow-hidden py-8">
-      {/* Background effects */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-5 left-10 w-24 h-24 bg-primary/5 rounded-full blur-xl animate-float"></div>
-        <div className="absolute bottom-5 right-10 w-20 h-20 bg-accent/5 rounded-full blur-xl animate-float" style={{
-        animationDelay: '1s'
-      }}></div>
-      </div>
-      
-      <div className="max-w-4xl mx-auto text-center relative z-10">
-        <div className="pt-6 sm:pt-8 animate-slide-up" style={{
-        animationDelay: '0.3s'
-      }}>
-          <div className="bg-card/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl shadow-soft mb-6">
-            <p className="text-gray-400 text-xs sm:text-sm mb-2 px-2 uppercase tracking-widest font-bold">
-              © {new Date().getFullYear()} Frecuencia Límbica. Todos los derechos reservados.
-            </p>
-            <p className="text-gray-500 text-xs px-2 mb-3 sm:mb-4 italic">
-              Este producto no sustituye el acompañamiento psicológico profesional. Las investigaciones mencionadas son de carácter educativo.
+  return (
+    <footer className="w-full bg-gradient-to-b from-lavender-50 to-white border-t border-lavender-100 py-12 sm:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+          
+          {/* Part 1: Dra. Paola Profile */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden shadow-md border-2 border-white">
+                <img
+                  src="https://i.imgur.com/C4JGtMM.jpeg"
+                  alt="Foto da Dra. Paola"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Dra Paola</h3>
+                <p className="text-sm font-medium text-primary mt-1 text-center">
+                  Neuropsicóloga - Especialista en Nuerociencia Emocional
+                </p>
+              </div>
+            </div>
+            
+            <p className="text-xs text-gray-600 leading-relaxed max-w-md">
+              Este método fue desarrollado a partir de más de 12 años de investigación clínica en neurociencia afectiva, 
+              combinando estudios sobre frecuencias binaurales, neuroplasticidad y el sistema límbico. 
+              Cada protocolo está respaldado por evidencia científica revisada.
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8">
-            <a href="#" className="text-gray-400 hover:text-primary transition-all text-xs sm:text-sm font-black uppercase tracking-widest italic">
-              Políticas de Privacidad
-            </a>
-            <span className="text-white/10 hidden sm:inline">|</span>
-            <a href="#" className="text-gray-400 hover:text-primary transition-all text-xs sm:text-sm font-black uppercase tracking-widest italic">
-              Términos de Uso
-            </a>
+
+          {/* Part 2: University Logos */}
+          <div className="flex flex-col items-center md:items-end space-y-6">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Método basado en investigaciones de:
+            </p>
+
+            <img
+              src="https://i.imgur.com/2te9bwA.jpeg"
+              alt="Instituciones de investigación"
+              className="w-full max-w-sm md:max-w-xs rounded-xl border border-gray-100 shadow-sm"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+            />
+            
+            <p className="text-[10px] text-gray-400 text-center md:text-right max-w-xs leading-tight">
+              Los logos representan instituciones cuyas investigaciones publicadas en neurociencia y frecuencias binaurales 
+              respaldan los principios utilizados en este método. Este producto no tiene afiliación directa con estas instituciones.
+            </p>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+          <p>© 2026 Frecuencia Límbica — Todos los derechos reservados.</p>
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={14} />
+            <span>Sitio Seguro</span>
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
