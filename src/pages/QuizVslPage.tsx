@@ -126,6 +126,8 @@ export const QuizVslPage = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loadingTextIndex, setLoadingTextIndex] = useState(0);
+  const [selectedOptionLabel, setSelectedOptionLabel] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
 
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
   const loadingTexts = ["Analizando tus respuestas…", "Evaluando tu perfil emocional…", "Calculando tu probabilidad de reconquista…"];
@@ -136,20 +138,32 @@ export const QuizVslPage = () => {
     return () => window.clearInterval(i);
   }, [phase, loadingTexts.length]);
 
+  useEffect(() => {
+    if (phase !== "quiz") return;
+    setSelectedOptionLabel(null);
+    setLocked(false);
+  }, [phase, stepIndex]);
+
   const handleAnswer = (opt: QuizOption) => {
+    if (locked || phase !== "quiz") return;
+    setSelectedOptionLabel(opt.label);
+    setLocked(true);
+
     const step = steps[stepIndex];
     const nextAnswers = [...answers, { stepId: step.id, optionLabel: opt.label }];
     setAnswers(nextAnswers);
 
     const isLast = stepIndex === steps.length - 1;
     if (!isLast) {
-      window.setTimeout(() => setStepIndex((v) => v + 1), 300);
+      window.setTimeout(() => setStepIndex((v) => v + 1), 360);
       return;
     }
 
-    setPhase("loading");
-    const totalMs = 6500;
-    window.setTimeout(() => setPhase("result"), totalMs);
+    window.setTimeout(() => {
+      setPhase("loading");
+      const totalMs = 6500;
+      window.setTimeout(() => setPhase("result"), totalMs);
+    }, 420);
   };
 
   const goToVsl = () => {
@@ -177,6 +191,13 @@ export const QuizVslPage = () => {
           100% { transform: translateX(220%) skewX(-15deg); opacity: 0; }
         }
         .quiz-shimmer { animation: quizShimmer 2.4s ease-in-out infinite; }
+
+        @keyframes quizSelectPop {
+          0% { transform: scale(1); }
+          45% { transform: scale(1.02); }
+          100% { transform: scale(1); }
+        }
+        .quiz-select-pop { animation: quizSelectPop 420ms ease-out; }
       `}</style>
       <div className="max-w-[600px] mx-auto">
         {phase === "quiz" && (
@@ -188,11 +209,13 @@ export const QuizVslPage = () => {
               />
             </div>
 
-            <div className="mt-6 flex justify-center">
-              <div className="rounded-full bg-yellow-100 text-yellow-900 font-bold text-xs sm:text-sm px-4 py-2 text-center">
-                {badgeText}
+            {stepIndex === 0 && (
+              <div className="mt-6 flex justify-center">
+                <div className="rounded-full bg-yellow-100 text-yellow-900 font-bold text-xs sm:text-sm px-4 py-2 text-center shadow-sm border border-yellow-200">
+                  {badgeText}
+                </div>
               </div>
-            </div>
+            )}
 
             <div key={steps[stepIndex].id} className="animate-fade-in">
               <div className="mt-8 text-center">
@@ -201,17 +224,41 @@ export const QuizVslPage = () => {
 
               <div className="mt-8 space-y-3">
                 {steps[stepIndex].options.map((opt) => (
+                  (() => {
+                    const isSelected = selectedOptionLabel === opt.label;
+                    const isDimmed = locked && !isSelected;
+                    return (
                   <button
                     key={`${steps[stepIndex].id}-${opt.label}`}
                     type="button"
                     onClick={() => handleAnswer(opt)}
-                    className="w-full rounded-2xl border border-black/5 bg-white/80 hover:bg-white active:bg-white px-4 py-4 text-left transition-colors"
+                    disabled={locked}
+                    aria-pressed={isSelected}
+                    className={[
+                      "w-full rounded-2xl border bg-white/80 px-4 py-4 text-left transition-all duration-200 ease-out",
+                      "hover:bg-white hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.99]",
+                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FDF2F4]",
+                      isSelected
+                        ? "bg-white border-pink-200 ring-2 ring-pink-400 shadow-[0_18px_45px_-30px_rgba(236,72,153,0.65)] quiz-select-pop"
+                        : "border-black/5 shadow-[0_8px_26px_-18px_rgba(45,27,78,0.22)]",
+                      isDimmed ? "opacity-55" : "",
+                      locked ? "cursor-not-allowed" : "",
+                    ].join(" ")}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{opt.emoji}</span>
                       <span className="text-base sm:text-lg font-semibold text-[#2D1B4E]">{opt.label}</span>
+                      {isSelected && (
+                        <span className="ml-auto flex items-center gap-2">
+                          <span className="h-6 w-6 rounded-full bg-gradient-to-r from-pink-500 to-violet-500 text-white flex items-center justify-center text-sm shadow-sm">
+                            ✓
+                          </span>
+                        </span>
+                      )}
                     </div>
                   </button>
+                    );
+                  })()
                 ))}
               </div>
             </div>
@@ -223,7 +270,7 @@ export const QuizVslPage = () => {
                   <img
                     src="https://i.imgur.com/C4JGtMM.jpeg"
                     alt="Foto da Dra. Paola"
-                    className="block w-full h-full object-cover"
+                    className="block w-full h-full object-cover object-[center_18%] scale-110"
                     loading="lazy"
                     decoding="async"
                     referrerPolicy="no-referrer"
@@ -247,18 +294,35 @@ export const QuizVslPage = () => {
         {phase === "result" && (
           <div className="min-h-[70vh] flex items-center justify-center">
             <div className="w-full rounded-3xl bg-white shadow-[0_18px_60px_-30px_rgba(236,72,153,0.35)] border border-pink-100 p-6 sm:p-10 text-center">
-              <p className="text-sm text-gray-600">Resultado de tu evaluación:</p>
+              <p className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wider">Resultado de tu evaluación</p>
               <div className="mt-4 text-6xl sm:text-7xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent drop-shadow quiz-soft-pulse">
                 94%
               </div>
-              <div className="mt-4 h-px w-16 mx-auto bg-fuchsia-500/80" />
-              <p className="mt-2 text-base sm:text-lg text-[#2D1B4E]">de probabilidad de recuperar tu conexión con él</p>
-              <div className="mt-6 h-px w-24 mx-auto bg-gradient-to-r from-pink-400 to-violet-400" />
-              <p className="mt-6 text-sm sm:text-base text-gray-700">
-                Esto significa que la frecuencia límbica entre tú y él todavía tiene señal. Él no te olvidó — su cerebro solo perdió la conexión. Y eso tiene solución.
+              <p className="mt-3 text-lg sm:text-xl font-semibold text-[#2D1B4E] max-w-[28rem] sm:max-w-md mx-auto">
+                Probabilidad estimada de recuperar tu conexión con él
               </p>
-              <p className="mt-3 text-xs sm:text-sm italic text-gray-500">Miles de mujeres en tu misma situación ya reactivaron esa frecuencia.</p>
-              <p className="mt-3 text-sm sm:text-base font-bold text-[#2D1B4E]">Mira este corto vídeo donde te explico el paso a paso exacto.</p>
+              <div className="mt-5 h-px w-20 mx-auto bg-fuchsia-500/80" />
+
+              <div className="mt-7 rounded-2xl bg-gradient-to-b from-pink-50/70 to-violet-50/70 border border-pink-100 px-5 py-5 sm:px-7 sm:py-6 text-left">
+                <p className="text-sm sm:text-base font-bold text-[#2D1B4E]">Buenas noticias:</p>
+                <p className="mt-2 text-sm sm:text-base text-gray-700 leading-relaxed">
+                  Según tus respuestas,{" "}
+                  <span className="font-semibold text-[#2D1B4E]">tu vínculo todavía tiene “señal”</span>. Eso significa que todavía hay una puerta abierta para
+                  recuperar la conexión sin desgastarte.
+                </p>
+                <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+                  <span className="font-semibold text-[#2D1B4E]">Lo que casi nadie te dice:</span> después de una ruptura, el cerebro de él no procesa las
+                  emociones como tú imaginas. Entra en modo protección… pero{" "}
+                  <span className="font-semibold text-[#2D1B4E]">hay un mecanismo que sigue activo</span>.
+                </p>
+                <p className="mt-4 text-sm sm:text-base text-gray-700 leading-relaxed">
+                  En el video de abajo vas a ver el disparador exacto y cómo activarlo{" "}
+                  <span className="font-semibold text-[#2D1B4E]">sin contacto, sin mensajes, sin rogar</span>.
+                </p>
+                <p className="mt-4 text-sm sm:text-base font-bold text-[#2D1B4E]">
+                  Te tomará pocos minutos. Y cuando lo veas, vas a entender por qué él actúa como actúa. 👇
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={goToVsl}

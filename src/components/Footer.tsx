@@ -13,7 +13,7 @@ export const Footer = () => {
                 <img
                   src="https://i.imgur.com/C4JGtMM.jpeg"
                   alt="Foto da Dra. Paola"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-[center_18%] scale-110"
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"

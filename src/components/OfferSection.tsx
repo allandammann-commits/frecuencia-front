@@ -117,6 +117,9 @@ const PremiumCard = ({ mockupSrc, premiumHref }: { mockupSrc: string; premiumHre
               <span>PayPal</span>
             </div>
           </div>
+          <div className="mt-6">
+            <GuaranteeBlock />
+          </div>
         </div>
       </div>
     </div>
@@ -145,7 +148,7 @@ const EssentialCard = ({ essentialHref }: { essentialHref: string }) => (
 );
 
 const GuaranteeBlock = () => (
-  <section className="w-full bg-white rounded-2xl border border-violet-200 p-6 sm:p-8">
+  <div className="w-full rounded-2xl border border-violet-200 bg-gradient-to-b from-white to-violet-50/50 p-5 sm:p-6">
     <div className="flex gap-4 items-start">
       <div className="flex-shrink-0 mt-1">
         <ShieldCheck className="h-7 w-7 text-violet-500" />
@@ -159,7 +162,7 @@ const GuaranteeBlock = () => (
         <p className="mt-3 text-xs italic text-gray-500">Escríbenos y procesamos tu reembolso en menos de 24 horas.</p>
       </div>
     </div>
-  </section>
+  </div>
 );
 
 export const OfferSection = () => {
@@ -203,10 +206,6 @@ export const OfferSection = () => {
           <div className="order-2 lg:mt-4">
             <EssentialCard essentialHref={essentialHref} />
           </div>
-        </div>
-
-        <div className="mt-8 sm:mt-10">
-          <GuaranteeBlock />
         </div>
       </div>
     </section>
