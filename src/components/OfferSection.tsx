@@ -182,8 +182,8 @@ export const OfferSection = () => {
 
   const mockupSrc = "https://i.imgur.com/bx0STew.png";
 
-  const premiumHref = "https://pay.hotmart.com/W99845697O?off=epltkvrf";
-  const essentialHref = "https://pay.hotmart.com/W99845697O?off=vr76jf4s";
+  const premiumHref = "https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10";
+  const essentialHref = "https://pay.hotmart.com/W99845697O?off=vr76jf4s&checkoutMode=10";
 
   if (!visible) return null;
 
