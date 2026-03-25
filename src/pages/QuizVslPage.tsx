@@ -211,7 +211,7 @@ export const QuizVslPage = () => {
 
             {stepIndex === 0 && (
               <div className="mt-6 flex justify-center">
-                <div className="rounded-full bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-900 font-bold text-[11px] sm:text-sm px-3 sm:px-4 py-2 text-center shadow-sm border border-yellow-200 leading-snug tracking-wide max-w-full break-words">
+                <div className="relative mx-auto rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 font-extrabold text-[11px] sm:text-sm px-2 sm:px-3 py-[6px] text-center shadow-[0_8px_18px_-10px_rgba(245,158,11,0.5)] border border-amber-200 ring-1 ring-amber-300/50 leading-snug tracking-wide max-w-[22rem] sm:max-w-[36rem] break-words">
                   {badgeText}
                 </div>
               </div>
