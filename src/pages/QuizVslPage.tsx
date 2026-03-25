@@ -7,7 +7,7 @@ type Answer = { stepId: string; optionLabel: string };
 
 type Phase = "quiz" | "loading" | "result" | "vsl";
 
-const badgeText = "⬇️ EVALUACIÓN GRATUITA PARA LA RECONQUISTA ⬇️";
+const badgeText = "⬇️ TEST GRATUITO: DESCUBRE EN 2 MINUTOS SI AÚN HAY UN VÍNCULO ENTRE USTEDES ⬇️";
 
 export const QuizVslPage = () => {
   const steps: QuizStep[] = useMemo(
@@ -211,7 +211,7 @@ export const QuizVslPage = () => {
 
             {stepIndex === 0 && (
               <div className="mt-6 flex justify-center">
-                <div className="rounded-full bg-yellow-100 text-yellow-900 font-bold text-xs sm:text-sm px-4 py-2 text-center shadow-sm border border-yellow-200">
+                <div className="rounded-full bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-900 font-bold text-[11px] sm:text-sm px-3 sm:px-4 py-2 text-center shadow-sm border border-yellow-200 leading-snug tracking-wide max-w-full break-words">
                   {badgeText}
                 </div>
               </div>
