@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const HeroSection = () => {
   useEffect(() => {
-    const src = "https://scripts.converteai.net/eace989b-db46-41fb-9133-2b70e27ad3d6/players/69cdcb15181cf04198569c93/v4/player.js";
+    const src = "https://scripts.converteai.net/eace989b-db46-41fb-9133-2b70e27ad3d6/players/69cdcab8c9ac45984af704ad/v4/player.js";
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) return;
     const s = document.createElement("script");
@@ -24,7 +24,7 @@ export const HeroSection = () => {
           <div className="absolute -inset-2 bg-primary/5 rounded-[2.5rem] blur-2xl group-hover:bg-primary/10 transition-all duration-700"></div>
           <div className="relative w-full bg-white rounded-3xl shadow-elegant overflow-hidden border border-border/40">
             <vturb-smartplayer
-              id="vid-69cdcb15181cf04198569c93"
+              id="vid-69cdcab8c9ac45984af704ad"
               style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: 400 }}
             />
           </div>
