@@ -1,16 +1,6 @@
-import { useEffect } from "react";
+import { VslPlayer } from "@/components/VslPlayer";
 
 export const HeroSection = () => {
-  useEffect(() => {
-    const src = "https://scripts.converteai.net/eace989b-db46-41fb-9133-2b70e27ad3d6/players/69cdcab8c9ac45984af704ad/v4/player.js";
-    const existing = document.querySelector(`script[src="${src}"]`);
-    if (existing) return;
-    const s = document.createElement("script");
-    s.src = src;
-    s.async = true;
-    document.head.appendChild(s);
-  }, []);
-
   return (
     <section className="w-full flex flex-col items-center justify-start bg-gradient-hero px-4 pt-2 pb-1 sm:pt-6 sm:pb-2 overflow-hidden">
       <div className="max-w-4xl w-full flex flex-col items-center gap-2 sm:gap-4 animate-fade-in">
@@ -23,21 +13,7 @@ export const HeroSection = () => {
         <div className="w-full max-w-[400px] relative group mt-2">
           <div className="absolute -inset-2 bg-primary/5 rounded-[2.5rem] blur-2xl group-hover:bg-primary/10 transition-all duration-700"></div>
           <div className="relative w-full bg-white rounded-3xl shadow-elegant overflow-hidden border border-border/40">
-            <vturb-smartplayer
-              id="vid-69cdcab8c9ac45984af704ad"
-              style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: 400 }}
-            >
-              <div
-                className="vturb-player-placeholder"
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  padding: "177.77777777777777% 0 0",
-                  zIndex: 0,
-                  backgroundColor: "black",
-                }}
-              />
-            </vturb-smartplayer>
+            <VslPlayer />
           </div>
         </div>
       </div>

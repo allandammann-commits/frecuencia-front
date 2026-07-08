@@ -202,7 +202,7 @@ export const QuizVslPage = () => {
   };
 
   if (phase === "vsl") {
-    return <VslPage offerDelayMs={278000} />;
+    return <VslPage key="vsl-phase" offerDelayMs={278000} />;
   }
 
   return (
