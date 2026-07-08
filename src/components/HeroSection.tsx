@@ -26,7 +26,18 @@ export const HeroSection = () => {
             <vturb-smartplayer
               id="vid-69cdcab8c9ac45984af704ad"
               style={{ display: "block", margin: "0 auto", width: "100%", maxWidth: 400 }}
-            />
+            >
+              <div
+                className="vturb-player-placeholder"
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  padding: "177.77777777777777% 0 0",
+                  zIndex: 0,
+                  backgroundColor: "black",
+                }}
+              />
+            </vturb-smartplayer>
           </div>
         </div>
       </div>
