@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import VslPage from "@/pages/VslPage";
+import { getStoredReferral } from "@/lib/referralCapture";
+import { trackFunnelEvent } from "@/lib/funnelTracking";
 
 type QuizOption = { emoji: string; label: string };
 type QuizStep = { id: string; question: ReactNode; options: QuizOption[] };
@@ -133,10 +135,31 @@ export const QuizVslPage = () => {
   const loadingTexts = ["Analizando tus respuestas…", "Evaluando tu perfil emocional…", "Calculando tu probabilidad de reconquista…"];
 
   useEffect(() => {
+    trackFunnelEvent({ eventType: "funnel_enter", metadata: getStoredReferral() });
+  }, []);
+
+  useEffect(() => {
+    if (phase !== "quiz") return;
+    const step = steps[stepIndex];
+    if (!step) return;
+    trackFunnelEvent({
+      eventType: "quiz_step_view",
+      stepId: step.id,
+      stepIndex,
+    });
+  }, [phase, stepIndex, steps]);
+
+  useEffect(() => {
     if (phase !== "loading") return;
+    trackFunnelEvent({ eventType: "quiz_analyzing" });
     const i = window.setInterval(() => setLoadingTextIndex((v) => (v + 1) % loadingTexts.length), 2000);
     return () => window.clearInterval(i);
   }, [phase, loadingTexts.length]);
+
+  useEffect(() => {
+    if (phase !== "result") return;
+    trackFunnelEvent({ eventType: "result_view" });
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== "quiz") return;
@@ -150,6 +173,13 @@ export const QuizVslPage = () => {
     setLocked(true);
 
     const step = steps[stepIndex];
+    const optionIndex = step.options.findIndex((o) => o.label === opt.label);
+    trackFunnelEvent({
+      eventType: "quiz_answer",
+      stepId: step.id,
+      stepIndex,
+      answerLabel: optionIndex >= 0 ? `opt-${optionIndex}` : opt.label,
+    });
     const nextAnswers = [...answers, { stepId: step.id, optionLabel: opt.label }];
     setAnswers(nextAnswers);
 

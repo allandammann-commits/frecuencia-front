@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, CreditCard, Gift, Lock, ShieldCheck, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackFunnelEvent } from "@/lib/funnelTracking";
 
 type BenefitKind = "check" | "bonus" | "star";
 type Benefit = { kind: BenefitKind; title: string; description: string };
@@ -96,6 +97,7 @@ const PremiumCard = ({ mockupSrc, premiumHref }: { mockupSrc: string; premiumHre
           <a href={premiumHref} target="_blank" rel="noopener noreferrer" className="block">
             <Button
               variant="hero"
+              onClick={() => trackFunnelEvent({ eventType: "checkout_click", metadata: { plan: "premium" } })}
               className="w-full py-6 text-sm font-bold bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 shadow-[0_16px_40px_-18px_rgba(139,92,246,0.8)] animate-pulse"
             >
               QUIERO EL PLAN PREMIUM ✨
@@ -135,7 +137,11 @@ const EssentialCard = ({ essentialHref }: { essentialHref: string }) => (
     </div>
     <div className="mt-6">
       <a href={essentialHref} target="_blank" rel="noopener noreferrer" className="block">
-        <Button variant="secondary" className="w-full py-6 text-sm font-bold bg-gray-600 hover:bg-gray-700 text-white">
+        <Button
+          variant="secondary"
+          onClick={() => trackFunnelEvent({ eventType: "checkout_click", metadata: { plan: "basic" } })}
+          className="w-full py-6 text-sm font-bold bg-gray-600 hover:bg-gray-700 text-white"
+        >
           QUIERO EL PLAN BASICO
         </Button>
       </a>
