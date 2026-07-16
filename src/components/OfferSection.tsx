@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, CreditCard, Gift, Lock, ShieldCheck, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { trackFunnelEvent } from "@/lib/funnelTracking";
+import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
+import { DEFAULT_CHECKOUT_PRODUCT_ID } from "@/config/checkout";
 
 type BenefitKind = "check" | "bonus" | "star";
 type Benefit = { kind: BenefitKind; title: string; description: string };
@@ -66,7 +66,15 @@ const PriceBlock = ({ oldPrice, price, highlight, showOld }: { oldPrice?: string
   </div>
 );
 
-const PremiumCard = ({ mockupSrc, premiumHref }: { mockupSrc: string; premiumHref: string }) => (
+const PremiumCard = ({
+  mockupSrc,
+  productId,
+  checkoutEnabled,
+}: {
+  mockupSrc: string;
+  productId: string;
+  checkoutEnabled: boolean;
+}) => (
   <div className="relative">
     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
       <div className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-violet-500 text-white text-xs font-bold shadow-md">
@@ -93,16 +101,14 @@ const PremiumCard = ({ mockupSrc, premiumHref }: { mockupSrc: string; premiumHre
         <div className="mt-6">
           <PriceBlock price="$9,90" highlight={true} />
         </div>
-        <div className="mt-6">
-          <a href={premiumHref} target="_blank" rel="noopener noreferrer" className="block">
-            <Button
-              variant="hero"
-              onClick={() => trackFunnelEvent({ eventType: "checkout_click", metadata: { plan: "premium" } })}
-              className="w-full py-6 text-sm font-bold bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 shadow-[0_16px_40px_-18px_rgba(139,92,246,0.8)] animate-pulse"
-            >
-              QUIERO EL PLAN PREMIUM ✨
-            </Button>
-          </a>
+        <div className="mt-6" id="checkout-premium">
+          <EmbeddedCheckout
+            productId={productId}
+            plan="premium"
+            variant="premium"
+            enabled={checkoutEnabled}
+            payButtonLabel="QUIERO EL PLAN PREMIUM ✨"
+          />
           <div className="mt-4 space-y-2">
             <div className="flex items-center justify-center gap-2 text-[12px] text-gray-600">
               <Lock className="h-4 w-4 text-gray-500" />
@@ -128,27 +134,56 @@ const PremiumCard = ({ mockupSrc, premiumHref }: { mockupSrc: string; premiumHre
   </div>
 );
 
-const EssentialCard = ({ essentialHref }: { essentialHref: string }) => (
+const EssentialCard = ({
+  productId,
+  checkoutEnabled,
+  isActive,
+  onActivate,
+  onSelectPremium,
+}: {
+  productId: string;
+  checkoutEnabled: boolean;
+  isActive: boolean;
+  onActivate: () => void;
+  onSelectPremium: () => void;
+}) => (
   <div className="rounded-2xl bg-[#F9F9F9] border border-gray-200 p-6 sm:p-7">
     <h3 className="text-xl font-bold text-gray-700 text-center">Plan Basico</h3>
     <ul className="mt-5 space-y-2">{ESSENTIAL_BENEFITS.map((b, i) => <BenefitItem key={i} benefit={b} />)}</ul>
     <div className="mt-6">
       <PriceBlock price="$6,90" highlight={false} />
     </div>
-    <div className="mt-6">
-      <a href={essentialHref} target="_blank" rel="noopener noreferrer" className="block">
-        <Button
-          variant="secondary"
-          onClick={() => trackFunnelEvent({ eventType: "checkout_click", metadata: { plan: "basic" } })}
-          className="w-full py-6 text-sm font-bold bg-gray-600 hover:bg-gray-700 text-white"
+    <div className="mt-6" id="checkout-basic">
+      {isActive ? (
+        <>
+          <EmbeddedCheckout
+            productId={productId}
+            plan="basic"
+            variant="basic"
+            enabled={checkoutEnabled}
+            payButtonLabel="QUIERO EL PLAN BASICO"
+          />
+          <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-gray-600">
+            <Lock className="h-4 w-4 text-gray-500" />
+            <span>Pago 100% seguro</span>
+          </div>
+          <button
+            type="button"
+            onClick={onSelectPremium}
+            className="mt-4 w-full text-center text-xs text-[#8B5CB8] font-semibold hover:underline"
+          >
+            Ver plan Premium con más beneficios ↑
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={onActivate}
+          className="w-full rounded-2xl bg-gray-600 hover:bg-gray-700 text-white font-bold py-3.5 text-sm transition"
         >
           QUIERO EL PLAN BASICO
-        </Button>
-      </a>
-      <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-gray-600">
-        <Lock className="h-4 w-4 text-gray-500" />
-        <span>Pago 100% seguro</span>
-      </div>
+        </button>
+      )}
     </div>
   </div>
 );
@@ -175,6 +210,7 @@ export const OfferSection = () => {
   const enabled = import.meta.env.VITE_OFFER_DELAY_ENABLED === "true";
   const delayMs = Number(import.meta.env.VITE_OFFER_DELAY_MS ?? "0");
   const [visible, setVisible] = useState(!enabled || !Number.isFinite(delayMs) || delayMs <= 0);
+  const [activePlan, setActivePlan] = useState<"premium" | "basic">("premium");
 
   useEffect(() => {
     if (!enabled) return;
@@ -187,9 +223,17 @@ export const OfferSection = () => {
   }, [delayMs, enabled]);
 
   const mockupSrc = "https://i.imgur.com/bx0STew.png";
+  const productId = DEFAULT_CHECKOUT_PRODUCT_ID;
 
-  const premiumHref = "https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10";
-  const essentialHref = "https://pay.hotmart.com/W99845697O?off=vr76jf4s&checkoutMode=10";
+  const scrollToPremium = () => {
+    setActivePlan("premium");
+    document.getElementById("checkout-premium")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const activateBasic = () => {
+    setActivePlan("basic");
+    document.getElementById("checkout-basic")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (!visible) return null;
 
@@ -207,10 +251,20 @@ export const OfferSection = () => {
 
         <div className="mt-8 sm:mt-10 grid gap-6 lg:gap-8 lg:grid-cols-[1.15fr_1fr] items-start">
           <div className="order-1">
-            <PremiumCard mockupSrc={mockupSrc} premiumHref={premiumHref} />
+            <PremiumCard
+              mockupSrc={mockupSrc}
+              productId={productId}
+              checkoutEnabled={visible && activePlan === "premium"}
+            />
           </div>
           <div className="order-2 lg:mt-4">
-            <EssentialCard essentialHref={essentialHref} />
+            <EssentialCard
+              productId={productId}
+              checkoutEnabled={visible && activePlan === "basic"}
+              isActive={activePlan === "basic"}
+              onActivate={activateBasic}
+              onSelectPremium={scrollToPremium}
+            />
           </div>
         </div>
       </div>
