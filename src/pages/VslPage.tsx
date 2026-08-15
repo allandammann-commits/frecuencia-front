@@ -9,9 +9,9 @@ import { trackFunnelEvent } from "@/lib/funnelTracking";
 
 /**
  * Tempo até liberar as provas + oferta abaixo do vídeo.
- * Produção: 278000 (4min38s). Mantido em 0 para revisão visual.
+ * Produção: 278000 (4min38s). Use 0 para revisar as seções sem esperar.
  */
-export const OFFER_DELAY_MS = 0;
+export const OFFER_DELAY_MS = 278000;
 
 export const VslPage = ({ offerDelayMs = OFFER_DELAY_MS }: { offerDelayMs?: number }) => {
   const [showOffer, setShowOffer] = useState(offerDelayMs <= 0);
