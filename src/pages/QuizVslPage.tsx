@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import VslPage from "@/pages/VslPage";
 import { getStoredReferral } from "@/lib/referralCapture";
 import { trackFunnelEvent } from "@/lib/funnelTracking";
+import DoctorSocialProof from "@/components/DoctorSocialProof";
 
 type QuizOption = { emoji: string; label: string };
 type QuizStep = { id: string; question: ReactNode; options: QuizOption[] };
@@ -124,7 +125,12 @@ export const QuizVslPage = () => {
     [],
   );
 
-  const [phase, setPhase] = useState<Phase>("quiz");
+  // Atalho de revisão: ?step=result ou ?step=vsl pula direto para a etapa
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (typeof window === "undefined") return "quiz";
+    const step = new URLSearchParams(window.location.search).get("step");
+    return step === "result" || step === "vsl" ? step : "quiz";
+  });
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loadingTextIndex, setLoadingTextIndex] = useState(0);
@@ -202,7 +208,7 @@ export const QuizVslPage = () => {
   };
 
   if (phase === "vsl") {
-    return <VslPage key="vsl-phase" offerDelayMs={278000} />;
+    return <VslPage key="vsl-phase" />;
   }
 
   return (
@@ -333,7 +339,7 @@ export const QuizVslPage = () => {
               </p>
               <div className="mt-5 h-px w-20 mx-auto bg-fuchsia-500/80" />
 
-              <div className="mt-7 rounded-2xl bg-gradient-to-b from-pink-50/70 to-violet-50/70 border border-pink-100 px-5 py-5 sm:px-7 sm:py-6 text-left">
+              <div className="mt-7 rounded-2xl bg-gradient-to-b from-pink-50/70 to-violet-50/70 border border-pink-100 px-5 py-5 sm:px-7 sm:py-6 text-center">
                 <p className="text-sm sm:text-base font-bold text-[#2D1B4E]">Buenas noticias:</p>
                 <p className="mt-2 text-sm sm:text-base text-gray-700 leading-relaxed">
                   Según tus respuestas,{" "}
@@ -351,6 +357,15 @@ export const QuizVslPage = () => {
                 </p>
                 <p className="mt-4 text-sm sm:text-base font-bold text-[#2D1B4E]">
                   Te tomará pocos minutos. Y cuando lo veas, vas a entender por qué él actúa como actúa. 👇
+                </p>
+              </div>
+              <div className="mt-7">
+                <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 text-center">
+                  Análisis elaborado por
+                </p>
+                <DoctorSocialProof className="mt-3" />
+                <p className="mt-3 text-[11px] sm:text-xs text-gray-500 text-center">
+                  Más de 25 mil mujeres siguen su método cada día.
                 </p>
               </div>
               <button

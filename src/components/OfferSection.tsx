@@ -194,7 +194,7 @@ export const OfferSection = () => {
   if (!visible) return null;
 
   return (
-    <section id="oferta" className="w-full px-4 py-10 sm:py-14 bg-gradient-to-b from-[#FDFAFF] to-[#F3EEFF] animate-fade-in">
+    <section id="oferta" className="w-full px-4 pt-10 pb-6 sm:pt-14 sm:pb-8 bg-gradient-to-b from-[#FDFAFF] to-[#F3EEFF] animate-fade-in">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-xl mx-auto animate-slide-up">
           <h2 className="mx-auto max-w-[40ch] text-lg sm:text-xl md:text-2xl font-bold text-[#2D1B4E] leading-tight">
