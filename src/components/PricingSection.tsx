@@ -73,7 +73,7 @@ export const PricingSection = () => {
                 <p className="text-xs sm:text-sm text-primary font-black mt-3 uppercase tracking-wider">Un solo pago, sin mensualidades. Acceso de por vida.</p>
               </div>
               
-              <a href="https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10" target="_blank" rel="noopener noreferrer">
+              <a href="https://pay.hotmart.com/W99845697O?off=epltkvrf&checkoutMode=10&bid=1787173042337" target="_blank" rel="noopener noreferrer">
                 <Button className="w-full py-10 text-xl font-black bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow transition-all rounded-2xl uppercase tracking-widest">
                   🎧 QUIERO EL PLAN PREMIUM
                 </Button>
