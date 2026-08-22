@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
-const PLAYER_ID = "vid-69cdcab8c9ac45984af704ad";
+const PLAYER_ID = "vid-6a89d02b3cd5e20f22c6cfd4";
 const PLAYER_SCRIPT =
-  "https://scripts.converteai.net/eace989b-db46-41fb-9133-2b70e27ad3d6/players/69cdcab8c9ac45984af704ad/v4/player.js";
+  "https://scripts.converteai.net/daf43a38-02c8-4b59-9a05-e60fab1e2ab9/players/6a89d02b3cd5e20f22c6cfd4/v4/player.js";
 
 const loadVturbScript = () => {
   document.querySelectorAll(`script[src="${PLAYER_SCRIPT}"]`).forEach((node) => node.remove());
